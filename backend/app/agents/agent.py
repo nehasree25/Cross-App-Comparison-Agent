@@ -12,6 +12,7 @@ from app.services.llm import get_groq_llm
 from app.tools.comparison import create_compare_products_tool
 from app.tools.merchant_search import create_search_merchant_products_tool
 from app.tools.product_search import create_search_products_tool
+from app.tools.ranking import create_rank_products_tool
 
 
 def create_product_agent(
@@ -25,6 +26,7 @@ def create_product_agent(
         create_search_products_tool(db),
         create_search_merchant_products_tool(db),
         create_compare_products_tool(db),
+        create_rank_products_tool(db),
     ]
     prompt = ChatPromptTemplate.from_messages(
         [

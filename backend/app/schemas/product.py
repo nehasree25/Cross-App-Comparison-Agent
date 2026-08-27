@@ -49,3 +49,8 @@ class RankingPreference(str, Enum):
     best_value = "best_value"
     highest_rated = "highest_rated"
     fastest_delivery = "fastest_delivery"
+
+
+class ProductRankingParams(BaseModel):
+    product_ids: list[str] = Field(min_length=1, max_length=100)
+    preference: RankingPreference

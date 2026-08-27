@@ -64,6 +64,53 @@ class ProductService:
             ),
         )
 
+    def rank_products(
+        self,
+        db: Session,
+        product_ids: Sequence[str],
+        preference: str,
+    ) -> list[dict[str, object]]:
+        """Load products by ID and rank them using deterministic Python rules."""
+
+        products = db.scalars(
+            select(Product)
+            .where(Product.product_id.in_(product_ids))
+        ).all()
+        results = [ProductResult.model_validate(product) for product in products]
+
+        if preference == "cheapest":
+            results.sort(key=lambda product: (
+                not product.availability,
+                product.final_price,
+                -product.rating,
+                product.product_id,
+            ))
+        elif preference == "highest_rated":
+            results.sort(key=lambda product: (
+                not product.availability,
+                -product.rating,
+                -product.review_count,
+                product.final_price,
+                product.product_id,
+            ))
+        elif preference == "fastest_delivery":
+            results.sort(key=lambda product: (
+                not product.availability,
+                product.delivery_days,
+                -product.rating,
+                product.final_price,
+                product.product_id,
+            ))
+        else:
+            results.sort(key=lambda product: (
+                not product.availability,
+                -_comparison_score(product),
+                product.final_price,
+                product.product_id,
+            ))
+
+        return [product.model_dump(mode="json") for product in results]
+
     @staticmethod
     def _build_search_statement(
         params: ProductSearchParams,
