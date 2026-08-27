@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 from app.database import Base, engine
 from app.models import Product, User
+from app.routers.agent import router as agent_router
 from app.routers.auth import router as auth_router
 
 app = FastAPI(title="Cross-App Comparison Agent")
@@ -13,6 +14,7 @@ def create_tables() -> None:
 
 
 app.include_router(auth_router)
+app.include_router(agent_router)
 
 
 @app.get("/")
