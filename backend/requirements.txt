@@ -1,12 +1,10 @@
 alembic==1.19.1
 fastapi==0.141.1
+langchain-core>=0.3,<1.0
+langchain>=0.3,<1.0
+langchain-groq>=0.2,<1.0
 psycopg[binary]==3.3.4
 PyJWT==2.10.1
 python-dotenv==1.2.3
 python-multipart==0.0.20
-SQLAlchemy==2(env) (base) PS D:\Projects\Cross-App-Comparison-Agent\backend> uvicorn main:app --reload              
-INFO:     Will watch for changes in these directories: ['D:\\Projects\\Cross-App-Comparison-Agent\\backend']
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [29380] using StatReload
-ERROR:    Error loading ASGI app. Could not import module "main"..0.52
 uvicorn==0.52.0
