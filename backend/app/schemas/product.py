@@ -74,8 +74,14 @@ class ProductSearchParams(BaseModel):
             if value
         )
         category = _normalize_category(search_text)
-        if category and not values.get("category"):
+        if category:
             values["category"] = category
+        if values.get("brand"):
+            values["brand"] = _normalize_brand(values["brand"])
+        elif values.get("query"):
+            brand = _extract_brand(values["query"])
+            if brand:
+                values["brand"] = _normalize_brand(brand)
         if values.get("max_price") is None:
             max_price = _extract_max_price(search_text)
             if max_price is not None:
@@ -88,7 +94,9 @@ class ProductSearchParams(BaseModel):
         delivery_days = _extract_max_delivery_days(search_text)
         if values.get("max_delivery_days") is None and delivery_days is not None:
             values["max_delivery_days"] = delivery_days
-        if values.get("query") and _is_natural_language_query(values["query"]):
+        if category and values.get("query"):
+            values["query"] = None
+        elif values.get("query") and _is_natural_language_query(values["query"]):
             values["query"] = _clean_query(values["query"], category)
         return values
 
@@ -103,7 +111,6 @@ class ProductComparisonParams(BaseModel):
 
 class RankingPreference(str, Enum):
     cheapest = "cheapest"
-    costliest = "costliest"
     best_value = "best_value"
     highest_rated = "highest_rated"
     fastest_delivery = "fastest_delivery"
@@ -131,6 +138,56 @@ def _normalize_category(search_text: str) -> str | None:
         if re.search(rf"\b{re.escape(alias)}\b", search_text, re.IGNORECASE):
             return category
     return None
+
+
+def _normalize_brand(brand: str) -> str:
+    return re.sub(
+        r"\s+(?:company|brand|corporation|corp\.?|inc\.?|ltd\.?)$",
+        "",
+        brand.strip(),
+        flags=re.IGNORECASE,
+    ).strip()
+
+
+def _extract_brand(search_text: str) -> str | None:
+    matches = re.findall(
+        r"(?:in|from|by)\s+([A-Za-z0-9][\w-]*(?:\s+(?:company|brand))?)",
+        search_text,
+        re.IGNORECASE,
+    )
+    if matches:
+        candidate = matches[-1]
+        return None if _is_non_brand_word(candidate) else candidate
+    match = re.search(
+        r"\b([A-Za-z0-9][\w-]*)\s+brand\b", search_text, re.IGNORECASE
+    )
+    if match:
+        candidate = match.group(1)
+        return None if _is_non_brand_word(candidate) else candidate
+    match = re.search(
+        r"\b([A-Za-z0-9][\w-]*)\s+(?:laptops?|mobiles?|smartphones?|chairs?)\b",
+        search_text,
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+    candidate = match.group(1)
+    return None if _is_non_brand_word(candidate) else candidate
+
+
+def _is_non_brand_word(value: str) -> bool:
+    return value.casefold() in {
+        "find",
+        "give",
+        "show",
+        "cheapest",
+        "highest",
+        "rated",
+        "best",
+        "value",
+        "fastest",
+        "delivery",
+    }
 
 
 def _extract_max_price(search_text: str) -> Decimal | None:

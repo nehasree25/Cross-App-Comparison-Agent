@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+import re
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -25,6 +26,16 @@ def chat(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> AgentChatResponse:
+    if _requests_unsupported_price_ranking(request.message):
+        return AgentChatResponse(
+            message=(
+                "Sorry, costliest/most expensive product recommendations "
+                "are not currently supported."
+            ),
+            recommended_product=None,
+            products=[],
+        )
+
     try:
         result = run_product_agent(db, request.message)
     except ValueError as error:
@@ -97,6 +108,16 @@ def _products_from_agent_result(result: Mapping[str, Any]) -> list[ProductResult
                 products.append(product)
 
     return products
+
+
+def _requests_unsupported_price_ranking(message: str) -> bool:
+    return bool(
+        re.search(
+            r"\b(?:costliest|most\s+expensive|highest\s+priced|maximum\s+price|most\s+costly)\b",
+            message,
+            re.IGNORECASE,
+        )
+    )
 
 
 def _recommended_product_from_agent_result(
