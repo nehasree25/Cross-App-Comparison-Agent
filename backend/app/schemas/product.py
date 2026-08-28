@@ -103,6 +103,7 @@ class ProductComparisonParams(BaseModel):
 
 class RankingPreference(str, Enum):
     cheapest = "cheapest"
+    costliest = "costliest"
     best_value = "best_value"
     highest_rated = "highest_rated"
     fastest_delivery = "fastest_delivery"

@@ -85,6 +85,13 @@ class ProductService:
                 -product.rating,
                 product.product_id,
             ))
+        elif preference == "costliest":
+            results.sort(key=lambda product: (
+                not product.availability,
+                -product.final_price,
+                -product.rating,
+                product.product_id,
+            ))
         elif preference == "highest_rated":
             results.sort(key=lambda product: (
                 not product.availability,

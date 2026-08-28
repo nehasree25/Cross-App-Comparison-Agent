@@ -12,14 +12,14 @@ from app.database import get_db
 from app.models.comparison_session import ComparisonSession
 from app.models.user import User
 from app.routers.auth import get_current_user
-from app.schemas.agent import AgentChatRequest, AgentChatResponse
+from app.schemas.agent import AgentChatRequest, AgentChatResponse, RecommendedProduct
 from app.schemas.comparison import ComparisonSessionRead
 from app.schemas.product import ProductResult, ProductSearchParams
 
 router = APIRouter(prefix="/api", tags=["agent"])
 
 
-@router.post("/compare", response_model=AgentChatResponse)
+@router.post("/recommendations", response_model=AgentChatResponse)
 def chat(
     request: AgentChatRequest,
     db: Session = Depends(get_db),
@@ -60,11 +60,12 @@ def chat(
 
     return AgentChatResponse(
         message=result.get("output", "I could not generate a recommendation."),
+        recommended_product=_recommended_product_from_agent_result(result),
         products=products,
     )
 
 
-@router.get("/comparisons", response_model=list[ComparisonSessionRead])
+@router.get("/comparison-history", response_model=list[ComparisonSessionRead])
 def comparison_history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -96,3 +97,32 @@ def _products_from_agent_result(result: Mapping[str, Any]) -> list[ProductResult
                 products.append(product)
 
     return products
+
+
+def _recommended_product_from_agent_result(
+    result: Mapping[str, Any],
+) -> RecommendedProduct | None:
+    for action, observation in reversed(result.get("intermediate_steps", [])):
+        if getattr(action, "tool", None) != "rank_products":
+            continue
+        if not isinstance(observation, list) or not observation:
+            return None
+        candidate = observation[0]
+        if not isinstance(candidate, dict):
+            return None
+        try:
+            product = ProductResult.model_validate(candidate.get("product", candidate))
+        except ValueError:
+            return None
+        return RecommendedProduct(
+            product_id=product.product_id,
+            merchant=product.merchant,
+            name=product.name,
+            brand=product.brand,
+            final_price=str(product.final_price),
+            currency=product.currency,
+            availability=product.availability,
+            rating=str(product.rating),
+            delivery_days=product.delivery_days,
+        )
+    return None
