@@ -135,6 +135,20 @@ class ProductService:
             filters.append(Product.final_price >= params.min_price)
         if params.max_price is not None:
             filters.append(Product.final_price <= params.max_price)
+        if params.min_rating is not None:
+            filters.append(
+                Product.rating > params.min_rating
+                if params._min_rating_exclusive
+                else Product.rating >= params.min_rating
+            )
+        if params.max_rating is not None:
+            filters.append(
+                Product.rating < params.max_rating
+                if params._max_rating_exclusive
+                else Product.rating <= params.max_rating
+            )
+        if params.max_delivery_days is not None:
+            filters.append(Product.delivery_days <= params.max_delivery_days)
         if params.availability is not None:
             filters.append(Product.availability.is_(params.availability))
 

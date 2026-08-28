@@ -25,7 +25,10 @@ def create_search_merchant_products_tool(
         brand: str | None = None,
         min_price: float | None = None,
         max_price: float | None = None,
-        availability: bool | None = None,
+        min_rating: float | None = None,
+        max_rating: float | None = None,
+        max_delivery_days: int | None = None,
+        availability: bool | None = True,
         limit: int = 20,
     ) -> list[dict[str, Any]]:
         """Search products from one connected merchant."""
@@ -38,6 +41,9 @@ def create_search_merchant_products_tool(
                 brand=brand,
                 min_price=min_price,
                 max_price=max_price,
+                min_rating=min_rating,
+                max_rating=max_rating,
+                max_delivery_days=max_delivery_days,
                 availability=availability,
                 limit=limit,
             )
