@@ -15,7 +15,54 @@ app = FastAPI(title="Cross-App Comparison Agent")
 @app.on_event("startup")
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
+    ensure_comparison_category()
     seed_catalog()
+
+
+def ensure_comparison_category() -> None:
+    with engine.begin() as connection:
+        columns = connection.execute(
+            text(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'comparison_sessions'
+                  AND column_name = 'category'
+                """
+            )
+        ).all()
+        if columns:
+            return
+
+        connection.execute(
+            text("ALTER TABLE comparison_sessions ADD COLUMN category VARCHAR(100)")
+        )
+        connection.execute(
+            text(
+                """
+                UPDATE comparison_sessions AS sessions
+                SET category = COALESCE(
+                    (
+                        SELECT products.category
+                        FROM products
+                        WHERE products.product_id IN (
+                            SELECT jsonb_array_elements_text(
+                                sessions.product_ids::jsonb
+                            )
+                        )
+                        LIMIT 1
+                    ),
+                    'Unknown'
+                )
+                WHERE sessions.category IS NULL
+                """
+            )
+        )
+        connection.execute(
+            text(
+                "ALTER TABLE comparison_sessions ALTER COLUMN category SET NOT NULL"
+            )
+        )
 
 
 def seed_catalog() -> None:
