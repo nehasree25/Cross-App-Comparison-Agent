@@ -89,19 +89,3 @@ def seed_catalog() -> None:
 
 app.include_router(auth_router)
 app.include_router(agent_router)
-
-
-@app.get("/")
-def root():
-    return {
-        "message": "Cross-App Comparison Agent API is running"
-    }
-@app.get("/db-test")
-def database_test():
-    with engine.connect() as connection:
-        result = connection.execute(text("SELECT 1"))
-
-    return {
-        "database": "connected",
-        "result": result.scalar()
-    }
