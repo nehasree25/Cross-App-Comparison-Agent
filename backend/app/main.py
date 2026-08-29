@@ -9,6 +9,7 @@ from app.database import Base, SessionLocal, engine
 from app.models import Product, User
 from app.routers.agent import router as agent_router
 from app.routers.auth import router as auth_router
+from app.routers.orders import router as orders_router
 
 app = FastAPI(title="Cross-App Comparison Agent")
 
@@ -100,3 +101,4 @@ def seed_catalog() -> None:
 
 app.include_router(auth_router)
 app.include_router(agent_router)
+app.include_router(orders_router)
