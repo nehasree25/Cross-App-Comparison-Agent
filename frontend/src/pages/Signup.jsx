@@ -121,7 +121,7 @@ export function Signup() {
         formData.name,
         formData.password
       )
-      navigate('/')
+      navigate('/dashboard')
     } catch (error) {
       // Convert API error to user-friendly message
       const errorInfo = handleApiError(error)

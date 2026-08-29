@@ -1,0 +1,125 @@
+.recommendations-page {
+  min-height: calc(100vh - 64px);
+  background: #ffffff;
+  padding: 2rem 1rem;
+}
+
+.recommendations-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.recommendations-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.recommendations-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.recommendations-header p {
+  font-size: 1rem;
+  color: #475569;
+  margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f0fdf4;
+  border: 1px solid #d1fae5;
+  border-radius: 0.75rem;
+}
+
+.empty-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: #047857;
+}
+
+.empty-state h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: #475569;
+  margin: 0 0 1.5rem 0;
+  max-width: 400px;
+}
+
+.btn-start-comparing {
+  display: inline-block;
+  background: #047857;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(4, 120, 87, 0.1);
+  cursor: pointer;
+}
+
+.btn-start-comparing:hover {
+  background: #065f46;
+  box-shadow: 0 4px 8px rgba(4, 120, 87, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-start-comparing:active {
+  transform: translateY(0);
+}
+
+/* Recommendations Grid */
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .recommendations-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .recommendations-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .recommendations-header p {
+    font-size: 0.875rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+    min-height: 400px;
+  }
+
+  .empty-state h2 {
+    font-size: 1.25rem;
+  }
+
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+}

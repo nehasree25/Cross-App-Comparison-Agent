@@ -107,6 +107,136 @@
 }
 
 /* ===========================
+   AUTHENTICATED NAVBAR STYLES
+   =========================== */
+
+.navbar-authenticated {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.navbar-menu-authenticated {
+  gap: 0;
+}
+
+.navbar-menu-authenticated .navbar-links {
+  gap: 0;
+}
+
+.navbar-link {
+  color: var(--main-text);
+  font-weight: 500;
+  font-size: 15px;
+  padding: 8px 20px;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.navbar-link:hover {
+  color: var(--primary-emerald);
+}
+
+.navbar-link.active {
+  color: var(--primary-emerald);
+  font-weight: 600;
+}
+
+.navbar-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -17px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--primary-emerald);
+}
+
+/* Mobile Menu Panel */
+.navbar-mobile-panel {
+  display: none;
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--white);
+}
+
+.mobile-menu-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-menu-link {
+  color: var(--main-text);
+  font-weight: 500;
+  font-size: 15px;
+  padding: 0.75rem 1rem;
+  display: block;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.mobile-menu-link:hover {
+  background: var(--light-emerald);
+  color: var(--primary-emerald);
+}
+
+.mobile-menu-link.active {
+  background: var(--light-emerald);
+  color: var(--primary-emerald);
+  font-weight: 600;
+}
+
+.mobile-logout-btn {
+  width: 100%;
+  background: var(--light-emerald);
+  color: var(--primary-emerald);
+  border: 1px solid var(--primary-emerald);
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mobile-logout-btn:hover {
+  background: var(--primary-emerald);
+  color: var(--white);
+}
+
+@media (max-width: 768px) {
+  .navbar-menu-authenticated {
+    display: none !important;
+  }
+
+  .navbar-mobile-menu {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    color: var(--main-text);
+    background: transparent;
+    padding: 8px;
+  }
+
+  .navbar-mobile-menu:hover {
+    color: var(--primary-emerald);
+  }
+
+  .navbar-mobile-panel {
+    display: block;
+  }
+
+  .navbar-link::after {
+    display: none;
+  }
+}
+
+/* ===========================
    HERO SECTION
    =========================== */
 

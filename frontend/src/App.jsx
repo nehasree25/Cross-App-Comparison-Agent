@@ -1,7 +1,9 @@
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { Navbar } from './components/Navbar'
+import { AuthenticatedNavbar } from './components/AuthenticatedNavbar'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import { Hero } from './components/Hero'
 import { About } from './components/About'
 import { HowItWorks } from './components/HowItWorks'
@@ -10,6 +12,11 @@ import { FeatureBento } from './components/FeatureBento'
 import { CategoryTicker } from './components/CategoryTicker'
 import { Login } from './pages/Login'
 import { Signup } from './pages/Signup'
+import { Dashboard } from './pages/Dashboard'
+import { Compare } from './pages/Compare'
+import { Recommendations } from './pages/Recommendations'
+import { Orders } from './pages/Orders'
+import { Profile } from './pages/Profile'
 
 function LandingPage() {
   return (
@@ -25,15 +32,75 @@ function LandingPage() {
   )
 }
 
+// Conditional navbar component that shows authenticated navbar for protected routes
+function AppContent() {
+  const { token, loading } = useAuth()
+
+  // Show nothing while auth is loading
+  if (loading) {
+    return null
+  }
+
+  return (
+    <>
+      {token && <AuthenticatedNavbar />}
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/compare"
+          element={
+            <ProtectedRoute>
+              <Compare />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/recommendations"
+          element={
+            <ProtectedRoute>
+              <Recommendations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
+        <AppContent />
       </AuthProvider>
     </BrowserRouter>
   )

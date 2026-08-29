@@ -63,7 +63,7 @@ export function Login() {
 
     try {
       await login(formData.usernameOrEmail, formData.password)
-      navigate('/')
+      navigate('/dashboard')
     } catch (error) {
       // Convert API error to user-friendly message
       const errorInfo = handleApiError(error)
