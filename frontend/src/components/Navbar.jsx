@@ -1,10 +1,12 @@
+import { Link } from 'react-router-dom'
+
 export function Navbar() {
   return (
     <nav className="navbar">
       <div className="container">
         <div className="navbar-content">
           {/* Brand */}
-          <div className="navbar-brand">
+          <Link to="/" className="navbar-brand">
             <svg
               width="20"
               height="20"
@@ -18,7 +20,7 @@ export function Navbar() {
               <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
             </svg>
             <span>CrossCompare</span>
-          </div>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="navbar-menu">
@@ -35,12 +37,12 @@ export function Navbar() {
             </ul>
 
             <div className="navbar-auth">
-              <a href="/login" className="btn-login">
+              <Link to="/login" className="btn-login">
                 Login
-              </a>
-              <a href="/signup" className="btn-signup">
+              </Link>
+              <Link to="/signup" className="btn-signup">
                 Sign Up
-              </a>
+              </Link>
             </div>
           </div>
 
