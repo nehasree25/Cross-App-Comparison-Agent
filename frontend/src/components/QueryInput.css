@@ -1,0 +1,164 @@
+.query-input-section {
+  background-color: #FFFFFF;
+  padding: 4rem 2rem;
+  border-bottom: 1px solid #E5E9E1;
+}
+
+.query-input-container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.query-label {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #172018;
+  text-align: center;
+}
+
+.query-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background-color: #FFFFFF;
+  border: 2px solid #E5E9E1;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(23, 32, 24, 0.05);
+}
+
+.query-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  color: #172018;
+  background-color: transparent;
+}
+
+.query-input::placeholder {
+  color: #B8BDB3;
+}
+
+.query-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  border: none;
+  background-color: #556B2F;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #6B7F3A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(85, 107, 47, 0.2);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  background-color: #D4D9CE;
+  cursor: not-allowed;
+}
+
+.submit-icon {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.submit-btn.loading {
+  background-color: #6B7F3A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: auto;
+  padding: 0 1rem;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.input-suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #667064;
+}
+
+.suggestion-icon {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .query-input-section {
+    padding: 2rem 1rem;
+  }
+
+  .query-input-container {
+    gap: 1rem;
+  }
+
+  .query-label {
+    font-size: 1.1rem;
+  }
+
+  .query-input {
+    font-size: 0.95rem;
+  }
+
+  .input-container {
+    padding: 0.75rem 1rem;
+  }
+
+  .submit-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .input-suggestion {
+    flex-direction: column;
+    text-align: center;
+  }
+}

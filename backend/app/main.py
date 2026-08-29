@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select, text
 
 from app.database import Base, SessionLocal, engine
@@ -10,6 +11,14 @@ from app.routers.agent import router as agent_router
 from app.routers.auth import router as auth_router
 
 app = FastAPI(title="Cross-App Comparison Agent")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
