@@ -49,3 +49,7 @@ class AdminToken(BaseModel):
     access_token: str
     token_type: str = "bearer"
     admin: AdminRead
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool = Field(description="User active status")

@@ -1,4 +1,5 @@
 import jwt
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import select, or_
@@ -86,7 +87,15 @@ def login(
         )
     
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account has been disabled. Please contact the administrator."
+        )
+    
+    # Update last_login
+    user.last_login = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
     
     # Log login event
     try:
@@ -135,7 +144,15 @@ def token(
         )
     
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account has been disabled. Please contact the administrator."
+        )
+    
+    # Update last_login
+    user.last_login = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
     
     # Log login event
     try:

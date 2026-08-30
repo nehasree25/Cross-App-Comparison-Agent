@@ -20,6 +20,7 @@ import { Orders } from './pages/Orders'
 import { Profile } from './pages/Profile'
 import { AdminLogin } from './pages/AdminLogin'
 import { AdminDashboard } from './pages/AdminDashboard'
+import { AdminUsers } from './pages/AdminUsers'
 import { AdminAuditLogs } from './pages/AdminAuditLogs'
 
 function LandingPage() {
@@ -88,6 +89,14 @@ function AppContent() {
           element={
             <AdminProtectedRoute>
               <AdminDashboard />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminProtectedRoute>
+              <AdminUsers />
             </AdminProtectedRoute>
           }
         />

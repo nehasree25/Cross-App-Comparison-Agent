@@ -1,0 +1,95 @@
+.revenue-chart-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.revenue-chart-container h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.revenue-chart-wrapper {
+  width: 100%;
+  height: auto;
+}
+
+/* Loading State */
+.revenue-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #475569;
+  font-size: 14px;
+}
+
+/* Error State */
+.revenue-error {
+  text-align: center;
+  padding: 2rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+/* Empty State */
+.revenue-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* Custom Tooltip */
+.revenue-tooltip {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.revenue-tooltip p {
+  margin: 0;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.tooltip-date {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.tooltip-revenue {
+  color: #047857;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .revenue-chart-container {
+    padding: 1rem;
+  }
+
+  .revenue-chart-container h3 {
+    font-size: 14px;
+    margin-bottom: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .revenue-chart-container {
+    padding: 0.75rem;
+  }
+
+  .revenue-chart-container h3 {
+    font-size: 13px;
+  }
+}

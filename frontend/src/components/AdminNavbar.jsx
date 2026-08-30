@@ -39,6 +39,9 @@ export function AdminNavbar() {
           <Link to="/admin" className="nav-link">
             Dashboard
           </Link>
+          <Link to="/admin/users" className="nav-link">
+            Users
+          </Link>
           <Link to="/admin/audit-logs" className="nav-link">
             Audit Logs
           </Link>

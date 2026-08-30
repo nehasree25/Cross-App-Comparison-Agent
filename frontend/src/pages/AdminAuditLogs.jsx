@@ -10,6 +10,8 @@ const ACTION_OPTIONS = [
   { value: 'USER_LOGOUT', label: 'User Logout' },
   { value: 'ADMIN_LOGIN', label: 'Admin Login' },
   { value: 'ADMIN_LOGOUT', label: 'Admin Logout' },
+  { value: 'ADMIN_USER_DISABLED', label: 'Admin User Disabled' },
+  { value: 'ADMIN_USER_ENABLED', label: 'Admin User Enabled' },
   { value: 'ORDER_CREATED', label: 'Order Created' },
   { value: 'CHECKOUT_STARTED', label: 'Checkout Started' },
   { value: 'PAYMENT_SUCCESS', label: 'Payment Success' },
@@ -239,6 +241,15 @@ export function AdminAuditLogs() {
                     Next →
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* Always show pagination info */}
+            {totalPages <= 1 && (
+              <div className="pagination-section">
+                <p className="pagination-info">
+                  Showing {total} of {total} events
+                </p>
               </div>
             )}
           </>

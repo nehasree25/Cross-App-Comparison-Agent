@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdminNavbar } from '../components/AdminNavbar'
+import { RevenueChart } from '../components/RevenueChart'
 import './AdminDashboard.css'
 
 export function AdminDashboard() {
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
+  const [revenueData, setRevenueData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isRevenueLoading, setIsRevenueLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [revenueError, setRevenueError] = useState(null)
 
   useEffect(() => {
     fetchStats()
+    fetchRevenueData()
   }, [])
 
   const fetchStats = async () => {
@@ -54,6 +59,38 @@ export function AdminDashboard() {
       setError(err.message)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchRevenueData = async () => {
+    try {
+      setIsRevenueLoading(true)
+      const token = localStorage.getItem('adminToken')
+      
+      if (!token) {
+        return
+      }
+
+      const response = await fetch('http://localhost:8000/api/admin/analytics/revenue?days=7', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          return
+        }
+        throw new Error('Failed to fetch revenue data')
+      }
+
+      const data = await response.json()
+      setRevenueData(data.days || [])
+    } catch (err) {
+      console.error('Error fetching revenue data:', err)
+      setRevenueError(err.message)
+    } finally {
+      setIsRevenueLoading(false)
     }
   }
 
@@ -116,6 +153,13 @@ export function AdminDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Revenue Chart */}
+            <RevenueChart 
+              data={revenueData}
+              isLoading={isRevenueLoading}
+              error={revenueError}
+            />
 
             {/* Recent Activity */}
             <div className="recent-activity-section">
