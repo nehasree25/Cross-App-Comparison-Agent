@@ -64,9 +64,9 @@ export function Profile() {
         </div>
 
         {/* Additional Info */}
-        <div className="profile-footer">
+        {/* <div className="profile-footer">
           <p>Need help? <a href="mailto:support@example.com">Contact support</a></p>
-        </div>
+        </div> */}
       </div>
     </div>
   )

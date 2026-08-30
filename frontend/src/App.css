@@ -11,6 +11,19 @@
   z-index: 100;
   display: flex;
   align-items: center;
+  padding-top: 16px;
+  position: relative;
+}
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--primary-emerald);
 }
 
 .navbar-content {
@@ -247,28 +260,44 @@
    =========================== */
 
 .hero {
-  padding: 80px 0 60px;
+  padding: 70px 0 50px;
   text-align: center;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--primary-emerald);
+  margin-bottom: 32px;
 }
 
 .hero-eyebrow {
   color: var(--primary-emerald);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  margin-top: 32px;
+  display: block;
 }
 
 .hero-heading {
-  font-size: 64px;
+  font-size: 56px;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -2px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .hero-heading .highlight {
@@ -277,15 +306,16 @@
 
 .hero-description {
   color: var(--secondary-text);
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.7;
   max-width: 650px;
-  margin: 0 auto 32px;
+  margin: 0 auto 28px;
+  text-align: center;
 }
 
 .hero-buttons {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -294,8 +324,8 @@
   background-color: var(--primary-emerald);
   color: var(--white);
   font-weight: 600;
-  font-size: 16px;
-  padding: 12px 32px;
+  font-size: 15px;
+  padding: 11px 28px;
   border-radius: 6px;
 }
 
@@ -307,8 +337,8 @@
   background-color: var(--white);
   color: var(--main-text);
   font-weight: 600;
-  font-size: 16px;
-  padding: 12px 32px;
+  font-size: 15px;
+  padding: 11px 28px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
 }
@@ -320,15 +350,19 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 60px 0 48px;
+    padding: 50px 0 40px;
+  }
+
+  .hero::before {
+    width: 50px;
   }
 
   .hero-heading {
-    font-size: 44px;
+    font-size: 38px;
   }
 
   .hero-description {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .hero-buttons {
@@ -346,22 +380,22 @@
    =========================== */
 
 .about {
-  padding: 64px 0;
+  padding: 160px 0 56px;
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
 }
 
 .about-heading {
-  font-size: 40px;
+  font-size: 36px;
   font-weight: 700;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
   text-align: center;
 }
 
 .about-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 48px;
+  gap: 40px;
 }
 
 .about-card {
@@ -369,49 +403,49 @@
 }
 
 .about-card-icon {
-  width: 60px;
-  height: 60px;
+  width: 56px;
+  height: 56px;
   background-color: var(--light-emerald);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 24px;
+  margin: 0 auto 20px;
   color: var(--primary-emerald);
 }
 
 .about-card-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: var(--main-text);
 }
 
 .about-card-subtitle {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--primary-emerald);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .about-card-description {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--secondary-text);
   line-height: 1.6;
 }
 
 @media (max-width: 768px) {
   .about {
-    padding: 48px 0;
+    padding: 40px 0;
   }
 
   .about-heading {
-    font-size: 28px;
-    margin-bottom: 36px;
+    font-size: 26px;
+    margin-bottom: 30px;
   }
 
   .about-content {
-    gap: 36px;
+    gap: 30px;
   }
 }
 
@@ -420,35 +454,35 @@
    =========================== */
 
 .how-it-works {
-  padding: 64px 0;
+  padding: 56px 0;
 }
 
 .how-it-works-heading {
-  font-size: 40px;
+  font-size: 36px;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .how-it-works-subtitle {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--secondary-text);
   text-align: center;
   max-width: 600px;
-  margin: 0 auto 48px;
+  margin: 0 auto 40px;
 }
 
 .how-it-works-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 32px;
+  gap: 28px;
 }
 
 .how-it-works-card {
   background-color: var(--white);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 32px;
+  padding: 28px;
   text-align: left;
   transition: all 0.3s ease;
 }
@@ -459,51 +493,51 @@
 }
 
 .how-it-works-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background-color: var(--light-emerald);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary-emerald);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .how-it-works-number {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--primary-emerald);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .how-it-works-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--main-text);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .how-it-works-description {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--secondary-text);
   line-height: 1.6;
 }
 
 @media (max-width: 768px) {
   .how-it-works {
-    padding: 48px 0;
+    padding: 40px 0;
   }
 
   .how-it-works-heading {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .how-it-works-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 }
 
@@ -512,26 +546,26 @@
    =========================== */
 
 .agent-workflow {
-  padding: 64px 0;
+  padding: 56px 0;
   background-color: var(--very-light-emerald);
   border-top: 1px solid var(--light-emerald);
   border-bottom: 1px solid var(--light-emerald);
 }
 
 .agent-workflow-heading {
-  font-size: 40px;
+  font-size: 36px;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   color: var(--main-text);
 }
 
 .agent-workflow-subtitle {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--secondary-text);
   text-align: center;
   max-width: 600px;
-  margin: 0 auto 40px;
+  margin: 0 auto 36px;
 }
 
 .workflow-container {
@@ -558,9 +592,9 @@
   background-color: var(--white);
   border: 2px solid var(--primary-emerald);
   color: var(--primary-emerald);
-  padding: 12px 20px;
+  padding: 10px 18px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
   text-align: center;
@@ -568,34 +602,34 @@
 
 .workflow-arrow {
   color: var(--primary-emerald);
-  margin: 0 12px;
+  margin: 0 10px;
   display: flex;
   align-items: center;
   opacity: 0.7;
 }
 
 .workflow-arrow svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   stroke: var(--primary-emerald);
 }
 
 @media (max-width: 768px) {
   .agent-workflow {
-    padding: 48px 0;
+    padding: 40px 0;
   }
 
   .agent-workflow-heading {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .workflow-steps {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .workflow-arrow {
-    margin: 8px 0;
+    margin: 6px 0;
     transform: rotate(90deg);
   }
 }
@@ -605,20 +639,20 @@
    =========================== */
 
 .feature-bento {
-  padding: 64px 0;
+  padding: 56px 0;
 }
 
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  gap: 20px;
 }
 
 .bento-card {
   background-color: var(--white);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 32px;
+  padding: 28px;
   text-align: left;
   transition: all 0.3s ease;
   position: relative;
@@ -632,12 +666,12 @@
 }
 
 .bento-icon-wrapper {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .bento-icon {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   background-color: var(--light-emerald);
   border-radius: 12px;
   display: flex;
@@ -647,30 +681,30 @@
 }
 
 .bento-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--main-text);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .bento-description {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--secondary-text);
   line-height: 1.6;
 }
 
 @media (max-width: 768px) {
   .feature-bento {
-    padding: 48px 0;
+    padding: 40px 0;
   }
 
   .bento-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
   }
 
   .bento-card {
-    padding: 24px;
+    padding: 20px;
   }
 }
 
@@ -679,30 +713,30 @@
    =========================== */
 
 .category-section {
-  padding: 64px 0;
+  padding: 56px 0;
   border-top: 1px solid var(--border-color);
   text-align: center;
 }
 
 .category-heading {
-  font-size: 40px;
+  font-size: 36px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
 .category-subtitle {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--secondary-text);
   text-align: center;
   max-width: 600px;
-  margin: 0 auto 40px;
+  margin: 0 auto 36px;
 }
 
 .ticker-container {
   position: relative;
   overflow: hidden;
-  margin-top: 32px;
+  margin-top: 28px;
 }
 
 .ticker-gradient {
@@ -726,9 +760,9 @@
 
 .ticker {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   animation: scroll-ticker 40s linear infinite;
-  padding: 20px 0;
+  padding: 16px 0;
 }
 
 .ticker:hover {
@@ -749,9 +783,9 @@
   background-color: var(--white);
   border: 1px solid var(--light-emerald);
   color: var(--main-text);
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   transition: all 0.3s ease;
@@ -765,24 +799,24 @@
 
 @media (max-width: 768px) {
   .category-section {
-    padding: 48px 0;
+    padding: 40px 0;
   }
 
   .category-heading {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .ticker {
-    gap: 12px;
+    gap: 10px;
   }
 
   .ticker-item {
-    padding: 10px 16px;
-    font-size: 13px;
+    padding: 8px 14px;
+    font-size: 12px;
   }
 
   .ticker-gradient {
-    width: 60px;
+    width: 50px;
   }
 }
 
