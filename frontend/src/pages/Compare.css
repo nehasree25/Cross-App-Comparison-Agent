@@ -1,7 +1,7 @@
 .compare-page {
-  min-height: calc(100vh - 64px);
+  min-height: 100vh;
   background: #ffffff;
-  padding: 2rem 1rem 3rem;
+  padding: 80px 1rem 3rem;
 }
 
 .compare-container {

@@ -18,7 +18,6 @@ export function Hero() {
 
         <div className="hero-buttons">
           <button className="btn-primary">Start Comparing</button>
-          <button className="btn-secondary">How It Works</button>
         </div>
       </div>
     </section>

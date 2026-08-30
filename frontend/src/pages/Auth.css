@@ -43,6 +43,12 @@
   color: #047857;
 }
 
+.auth-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 /* Heading */
 .auth-heading {
   margin-bottom: 1.5rem;

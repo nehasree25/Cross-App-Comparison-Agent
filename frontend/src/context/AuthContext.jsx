@@ -76,10 +76,10 @@ export function AuthProvider({ children }) {
     const data = await response.json()
     const accessToken = data.access_token
     
-    // Store token in localStorage
+    // Store token in localStorage FIRST (synchronously)
     localStorage.setItem('token', accessToken)
     
-    // Update state
+    // Then update state (may be async)
     setToken(accessToken)
     setUser(data.user)
     

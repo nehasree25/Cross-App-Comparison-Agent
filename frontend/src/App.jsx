@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { initApiClient } from './utils/apiClient'
 import { Navbar } from './components/Navbar'
@@ -22,7 +22,6 @@ import { Profile } from './pages/Profile'
 function LandingPage() {
   return (
     <>
-      <Navbar />
       <Hero />
       <About />
       <HowItWorks />
@@ -33,9 +32,29 @@ function LandingPage() {
   )
 }
 
+// Smart navbar component - decides which navbar to render based on current route
+function NavbarRouter() {
+  const location = useLocation()
+  const { token } = useAuth()
+  
+  // Landing page always uses the landing navbar
+  if (location.pathname === '/') {
+    return <Navbar />
+  }
+  
+  // Application pages only use authenticated navbar
+  const appRoutes = ['/dashboard', '/compare', '/orders', '/profile']
+  if (appRoutes.includes(location.pathname)) {
+    return <AuthenticatedNavbar />
+  }
+  
+  // For login/signup pages, don't render a navbar (or render a minimal one)
+  return null
+}
+
 // Conditional navbar component that shows authenticated navbar for protected routes
 function AppContent() {
-  const { token, loading, handleTokenInvalid } = useAuth()
+  const { loading, handleTokenInvalid } = useAuth()
 
   // Initialize API client with auth context
   initApiClient({ handleTokenInvalid })
@@ -47,7 +66,7 @@ function AppContent() {
 
   return (
     <>
-      {token && <AuthenticatedNavbar />}
+      <NavbarRouter />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />

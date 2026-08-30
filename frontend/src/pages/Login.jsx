@@ -63,7 +63,9 @@ export function Login() {
 
     try {
       await login(formData.usernameOrEmail, formData.password)
-      navigate('/dashboard')
+      // Navigation will happen after state updates
+      // The navigate happens naturally through React's state update cycle
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       // Convert API error to user-friendly message
       const errorInfo = handleApiError(error)
@@ -85,19 +87,8 @@ export function Login() {
         <div className="auth-card">
           {/* Logo */}
           <Link to="/" className="auth-logo">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-            </svg>
-            <span>CrossCompare</span>
+            <img src="/image.png" alt="CrossApp Agent" className="auth-logo-img" />
+            <span>CrossApp Agent</span>
           </Link>
 
           {/* Heading */}

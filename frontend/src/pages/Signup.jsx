@@ -140,19 +140,8 @@ export function Signup() {
         <div className="auth-card">
           {/* Logo */}
           <Link to="/" className="auth-logo">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-            </svg>
-            <span>CrossCompare</span>
+            <img src="/image.png" alt="CrossApp Agent" className="auth-logo-img" />
+            <span>CrossApp Agent</span>
           </Link>
 
           {/* Heading */}

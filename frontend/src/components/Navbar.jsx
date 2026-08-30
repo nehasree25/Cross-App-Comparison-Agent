@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export function Navbar() {
+  const { token } = useAuth()
+  // Also check localStorage as fallback for immediate auth changes
+  const isAuthenticated = token || localStorage.getItem('token')
+
   return (
     <nav className="navbar">
       <div className="container">
@@ -26,12 +31,22 @@ export function Navbar() {
             </ul>
 
             <div className="navbar-auth">
-              <Link to="/login" className="btn-login">
-                Login
-              </Link>
-              <Link to="/signup" className="btn-signup">
-                Sign Up
-              </Link>
+              {isAuthenticated ? (
+                // Authenticated user on landing page - Dashboard button styled like Sign Up
+                <Link to="/dashboard" className="btn-signup">
+                  Dashboard
+                </Link>
+              ) : (
+                // Unauthenticated user
+                <>
+                  <Link to="/login" className="btn-login">
+                    Login
+                  </Link>
+                  <Link to="/signup" className="btn-signup">
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 

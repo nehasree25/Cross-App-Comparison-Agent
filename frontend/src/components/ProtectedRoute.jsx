@@ -13,8 +13,11 @@ export function ProtectedRoute({ children }) {
     )
   }
 
+  // Check both the context token and localStorage as a fallback
+  const hasToken = token || localStorage.getItem('token')
+
   // If no token, redirect to login
-  if (!token) {
+  if (!hasToken) {
     return <Navigate to="/login" replace />
   }
 

@@ -75,7 +75,13 @@ def chat(
     recommended_product, recommendation_reason = select_best_product(
         products, request.message
     )
-
+    
+    # CRITICAL: Log if we have products but no recommendation
+    if products and not recommended_product:
+        import logging as logging_module
+        logger_critical = logging_module.getLogger(__name__)
+        logger_critical.error(f"CRITICAL: {len(products)} products but NO RECOMMENDATION | Query='{request.message}'")
+    
     return AgentChatResponse(
         message=result.get("output", "I could not generate a recommendation."),
         recommended_product=recommended_product,
@@ -97,24 +103,61 @@ def comparison_history(
 
 
 def _products_from_agent_result(result: Mapping[str, Any]) -> list[ProductResult]:
+    """Extract products from agent intermediate steps with detailed logging."""
     products: list[ProductResult] = []
     seen_ids: set[str] = set()
+    
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    intermediate_steps = result.get("intermediate_steps", [])
+    logger.info(f"Extracting products from {len(intermediate_steps)} intermediate steps")
+    logger.debug(f"Full result keys: {result.keys()}")
 
-    for _, observation in result.get("intermediate_steps", []):
-        if not isinstance(observation, list):
+    for idx, step in enumerate(intermediate_steps):
+        logger.debug(f"Step {idx}: type={type(step)}, len={len(step) if isinstance(step, (list, tuple)) else 'N/A'}")
+        
+        if not isinstance(step, (tuple, list)) or len(step) != 2:
+            logger.debug(f"Step {idx}: not a 2-tuple, skipping")
             continue
-        for item in observation:
+        
+        action, observation = step
+        tool_name = getattr(action, 'tool', 'unknown')
+        logger.debug(f"Step {idx}: action_tool={tool_name}, observation_type={type(observation).__name__}")
+        
+        if not isinstance(observation, list):
+            logger.debug(f"Step {idx}: observation is not a list (got {type(observation).__name__}), skipping")
+            continue
+        
+        logger.debug(f"Step {idx}: processing {len(observation)} observation items")
+        
+        for item_idx, item in enumerate(observation):
+            logger.debug(f"  Item {item_idx}: type={type(item).__name__}, keys={item.keys() if isinstance(item, dict) else 'N/A'}")
+            
             candidate = item.get("product", item) if isinstance(item, dict) else None
+            
             if not isinstance(candidate, dict):
+                logger.debug(f"    Candidate type={type(candidate).__name__}, not extracting")
                 continue
+            
+            logger.debug(f"    Candidate keys: {list(candidate.keys())[:5]}...")  # Log first 5 keys
+            
             try:
                 product = ProductResult.model_validate(candidate)
-            except ValueError:
+                if product.product_id not in seen_ids:
+                    seen_ids.add(product.product_id)
+                    products.append(product)
+                    logger.info(f"  ✓ Extracted product: {product.product_id} ({product.name})")
+                else:
+                    logger.debug(f"    ✗ Duplicate product: {product.product_id}")
+            except ValueError as e:
+                logger.warning(f"    ✗ Validation failed for item {item_idx}: {str(e)[:100]}")
                 continue
-            if product.product_id not in seen_ids:
-                seen_ids.add(product.product_id)
-                products.append(product)
 
+    logger.info(f"TOTAL PRODUCTS EXTRACTED: {len(products)}")
+    for p in products:
+        logger.debug(f"  - {p.product_id}: {p.name} | ₹{p.final_price} | Rating: {p.rating}")
+    
     return products
 
 

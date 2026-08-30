@@ -6,24 +6,14 @@
   height: 64px;
   border-bottom: 1px solid var(--border-color);
   background-color: var(--white);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   padding-top: 16px;
-  position: relative;
-}
-
-.navbar::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background-color: var(--primary-emerald);
 }
 
 .navbar-content {
@@ -98,8 +88,8 @@
   background-color: var(--primary-emerald);
   color: var(--white);
   font-weight: 600;
-  font-size: 15px;
-  padding: 10px 24px;
+  font-size: 13px;
+  padding: 8px 18px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -260,21 +250,25 @@
    =========================== */
 
 .hero {
-  padding: 70px 0 50px;
-  text-align: center;
+  padding: 80px 0 50px;
   position: relative;
+  background-image: url('/hero.png');
+  background-size: 60%;
+  background-position: right 80%;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  margin-top: 80px;
 }
 
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background-color: var(--primary-emerald);
-  margin-bottom: 32px;
+.hero .container {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+  padding-left: 60px;
+  padding-right: 20px;
 }
 
 .hero-eyebrow {
@@ -283,7 +277,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   margin-top: 32px;
   display: block;
 }
@@ -293,11 +287,8 @@
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -2px;
-  margin-bottom: 20px;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
+  margin-bottom: 28px;
+  text-align: left;
 }
 
 .hero-heading .highlight {
@@ -308,16 +299,15 @@
   color: var(--secondary-text);
   font-size: 16px;
   line-height: 1.7;
-  max-width: 650px;
-  margin: 0 auto 28px;
-  text-align: center;
+  margin: 0 0 40px;
+  text-align: left;
 }
 
 .hero-buttons {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  gap: 20px;
   flex-wrap: wrap;
+  margin-top: 16px;
 }
 
 .btn-primary {
@@ -327,6 +317,9 @@
   font-size: 15px;
   padding: 11px 28px;
   border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
 }
 
 .btn-primary:hover {
@@ -341,6 +334,8 @@
   padding: 11px 28px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .btn-secondary:hover {
@@ -351,27 +346,40 @@
 @media (max-width: 768px) {
   .hero {
     padding: 50px 0 40px;
+    background-attachment: scroll;
+    background-position: center;
   }
 
   .hero::before {
+    left: 20px;
     width: 50px;
+  }
+
+  .hero .container {
+    max-width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .hero-heading {
     font-size: 38px;
+    text-align: left;
   }
 
   .hero-description {
     font-size: 15px;
+    text-align: left;
+    margin: 0 0 28px;
   }
 
   .hero-buttons {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 12px;
   }
 
   .btn-primary,
   .btn-secondary {
-    width: 100%;
+    width: auto;
   }
 }
 
@@ -380,7 +388,7 @@
    =========================== */
 
 .about {
-  padding: 160px 0 56px;
+  padding: 80px 0 56px;
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
 }
@@ -394,7 +402,7 @@
 
 .about-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 40px;
 }
 
@@ -421,13 +429,6 @@
   color: var(--main-text);
 }
 
-.about-card-subtitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--primary-emerald);
-  margin-bottom: 10px;
-}
-
 .about-card-description {
   font-size: 14px;
   color: var(--secondary-text);
@@ -445,6 +446,7 @@
   }
 
   .about-content {
+    grid-template-columns: 1fr;
     gap: 30px;
   }
 }
@@ -454,7 +456,7 @@
    =========================== */
 
 .how-it-works {
-  padding: 56px 0;
+  padding: 100px 0 56px;
 }
 
 .how-it-works-heading {
