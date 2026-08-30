@@ -59,6 +59,11 @@ def get_admin_stats(
         select(func.count(Order.id)).where(Order.payment_status == "PAYMENT_PENDING")
     )
     
+    # Total revenue (sum of all PAID orders)
+    total_revenue = db.scalar(
+        select(func.sum(Order.amount)).where(Order.payment_status == "PAID")
+    ) or 0
+    
     # Recent audit logs
     recent_logs = db.scalars(
         select(AuditLog)
@@ -72,6 +77,7 @@ def get_admin_stats(
         "paid_orders": paid_orders or 0,
         "failed_payments": failed_payments or 0,
         "pending_payments": pending_payments or 0,
+        "total_revenue": float(total_revenue),
         "recent_activity": [
             {
                 "id": log.id,

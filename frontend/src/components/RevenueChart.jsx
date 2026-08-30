@@ -18,7 +18,6 @@ export function RevenueChart({ data, isLoading, error }) {
   if (isLoading) {
     return (
       <div className="revenue-chart-container">
-        <h3>Revenue Generated — Last 7 Days</h3>
         <div className="revenue-loading">Loading revenue...</div>
       </div>
     )
@@ -27,7 +26,6 @@ export function RevenueChart({ data, isLoading, error }) {
   if (error) {
     return (
       <div className="revenue-chart-container">
-        <h3>Revenue Generated — Last 7 Days</h3>
         <div className="revenue-error">Unable to load revenue data.</div>
       </div>
     )
@@ -36,7 +34,6 @@ export function RevenueChart({ data, isLoading, error }) {
   if (!data || data.length === 0) {
     return (
       <div className="revenue-chart-container">
-        <h3>Revenue Generated — Last 7 Days</h3>
         <div className="revenue-empty">No revenue data available.</div>
       </div>
     )
@@ -59,12 +56,11 @@ export function RevenueChart({ data, isLoading, error }) {
 
   return (
     <div className="revenue-chart-container">
-      <h3>Revenue Generated — Last 7 Days</h3>
       <div className="revenue-chart-wrapper">
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={220}>
           <BarChart
             data={chartData}
-            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+            margin={{ top: 15, right: 20, left: 0, bottom: 15 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
             <XAxis

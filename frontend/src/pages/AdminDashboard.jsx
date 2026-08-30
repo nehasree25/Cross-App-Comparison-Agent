@@ -120,46 +120,69 @@ export function AdminDashboard() {
           </div>
         ) : stats ? (
           <>
-            {/* Stats Grid */}
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-label">Total Users</div>
-                <div className="stat-value">{stats.total_users}</div>
-              </div>
+            {/* Stats and Chart Wrapper */}
+            <div className="stats-and-chart-wrapper">
+              {/* Stats Column */}
+              <div className="stats-column">
+                {/* Overview Section */}
+                <div className="overview-section">
+                  <h2 className="section-heading">Overview</h2>
+                  
+                  <div className="stats-grid">
+                    <div className="stat-card">
+                      <div className="stat-label">Total Users</div>
+                      <div className="stat-value">{stats.total_users}</div>
+                    </div>
 
-              <div className="stat-card">
-                <div className="stat-label">Total Orders</div>
-                <div className="stat-value">{stats.total_orders}</div>
-              </div>
+                    <div className="stat-card">
+                      <div className="stat-label">Total Orders</div>
+                      <div className="stat-value">{stats.total_orders}</div>
+                    </div>
 
-              <div className="stat-card">
-                <div className="stat-label">Paid Orders</div>
-                <div className="stat-value" style={{ color: '#10b981' }}>
-                  {stats.paid_orders}
+                    <div className="stat-card">
+                      <div className="stat-label">Paid Orders</div>
+                      <div className="stat-value" style={{ color: '#10b981' }}>
+                        {stats.paid_orders}
+                      </div>
+                    </div>
+
+                    <div className="stat-card">
+                      <div className="stat-label">Failed Payments</div>
+                      <div className="stat-value" style={{ color: '#ef4444' }}>
+                        {stats.failed_payments}
+                      </div>
+                    </div>
+
+                    <div className="stat-card">
+                      <div className="stat-label">Pending Payments</div>
+                      <div className="stat-value" style={{ color: '#f59e0b' }}>
+                        {stats.pending_payments}
+                      </div>
+                    </div>
+
+                    <div className="stat-card">
+                      <div className="stat-label">Total Revenue</div>
+                      <div className="stat-value" style={{ color: '#047857' }}>
+                        ₹{stats.total_revenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="stat-card">
-                <div className="stat-label">Failed Payments</div>
-                <div className="stat-value" style={{ color: '#ef4444' }}>
-                  {stats.failed_payments}
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-label">Pending Payments</div>
-                <div className="stat-value" style={{ color: '#f59e0b' }}>
-                  {stats.pending_payments}
+              {/* Chart Column */}
+              <div className="chart-column">
+                <div className="revenue-overview-section">
+                  <h2 className="section-heading">Revenue Overview</h2>
+                  <p className="revenue-subtitle">Last 7 Days</p>
+                  <RevenueChart 
+                    data={revenueData}
+                    isLoading={isRevenueLoading}
+                    error={revenueError}
+                  />
                 </div>
               </div>
             </div>
-
-            {/* Revenue Chart */}
-            <RevenueChart 
-              data={revenueData}
-              isLoading={isRevenueLoading}
-              error={revenueError}
-            />
 
             {/* Recent Activity */}
             <div className="recent-activity-section">
