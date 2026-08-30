@@ -132,6 +132,9 @@ export function Compare() {
   const [isOrdering, setIsOrdering] = useState(false)
   const [apiError, setApiError] = useState(null)
   const [orderError, setOrderError] = useState(null)
+  const [comparisonPage, setComparisonPage] = useState(1)
+  
+  const PRODUCTS_PER_PAGE = 8
 
   const handleExampleClick = (example) => {
     setRequirement(example)
@@ -278,6 +281,8 @@ export function Compare() {
         recommended_product: data.recommended_product,
         products: data.products || []
       })
+      // Reset pagination when new comparison results arrive
+      setComparisonPage(1)
     } catch (error) {
       const errorInfo = handleApiError(error)
       setApiError(errorInfo)
@@ -285,6 +290,39 @@ export function Compare() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Pagination helpers
+  const getPaginatedProducts = () => {
+    if (!comparisonResults || !comparisonResults.products) {
+      return { products: [], totalPages: 0, startIndex: 0, endIndex: 0 }
+    }
+    
+    const products = comparisonResults.products
+    const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE)
+    const startIndex = (comparisonPage - 1) * PRODUCTS_PER_PAGE
+    const endIndex = startIndex + PRODUCTS_PER_PAGE
+    
+    return {
+      products: products.slice(startIndex, endIndex),
+      totalPages,
+      startIndex,
+      endIndex,
+      total: products.length
+    }
+  }
+
+  const handlePreviousPage = () => {
+    setComparisonPage(prev => Math.max(1, prev - 1))
+  }
+
+  const handleNextPage = () => {
+    const { totalPages } = getPaginatedProducts()
+    setComparisonPage(prev => Math.min(totalPages, prev + 1))
+  }
+
+  const handlePageClick = (pageNum) => {
+    setComparisonPage(pageNum)
   }
 
   return (
@@ -383,13 +421,62 @@ export function Compare() {
                     <span className="results-count">{comparisonResults.products.length} products</span>
                   </div>
                   <div className="results-grid">
-                    {comparisonResults.products.map((product, idx) => (
+                    {getPaginatedProducts().products.map((product, idx) => (
                       <ComparisonProductCard
                         key={product.product_id || idx}
                         product={product}
                       />
                     ))}
                   </div>
+                  
+                  {/* Pagination Controls */}
+                  {(() => {
+                    const { totalPages, total, startIndex, endIndex } = getPaginatedProducts()
+                    if (totalPages <= 1) return null
+                    
+                    const pageNumbers = []
+                    for (let i = 1; i <= totalPages; i++) {
+                      pageNumbers.push(i)
+                    }
+                    
+                    return (
+                      <div className="pagination-section">
+                        <p className="pagination-info">
+                          Showing {startIndex + 1}–{Math.min(endIndex, total)} of {total} products
+                        </p>
+                        
+                        <div className="pagination-controls">
+                          <button
+                            className="btn-pagination-prev"
+                            onClick={handlePreviousPage}
+                            disabled={comparisonPage === 1}
+                          >
+                            ← Previous
+                          </button>
+                          
+                          <div className="pagination-pages">
+                            {pageNumbers.map(pageNum => (
+                              <button
+                                key={pageNum}
+                                className={`pagination-page ${comparisonPage === pageNum ? 'active' : ''}`}
+                                onClick={() => handlePageClick(pageNum)}
+                              >
+                                {pageNum}
+                              </button>
+                            ))}
+                          </div>
+                          
+                          <button
+                            className="btn-pagination-next"
+                            onClick={handleNextPage}
+                            disabled={comparisonPage === totalPages}
+                          >
+                            Next →
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
             </>

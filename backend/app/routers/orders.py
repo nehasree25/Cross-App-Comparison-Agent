@@ -292,3 +292,50 @@ def verify_payment(
             detail="Failed to update payment status",
         ) from error
 
+
+@router.post("/orders/{order_id}/mark-failed")
+def mark_payment_failed(
+    order_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Mark an order payment as failed"""
+    order = db.scalar(
+        select(Order).where(
+            (Order.id == order_id) & (Order.user_id == current_user.id)
+        )
+    )
+    
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found",
+        )
+    
+    # Prevent marking as failed if already paid
+    if order.payment_status == "PAID":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot mark a paid order as failed",
+        )
+    
+    try:
+        order.payment_status = "PAYMENT_FAILED"
+        # Do NOT set payment_at for a failed payment
+        # payment_at remains NULL
+        db.commit()
+        db.refresh(order)
+        
+        return {
+            "status": "success",
+            "message": "Payment marked as failed",
+            "order_id": order.id,
+            "payment_status": order.payment_status,
+        }
+    except Exception as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update payment status",
+        ) from error
+

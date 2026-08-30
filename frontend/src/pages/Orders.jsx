@@ -52,6 +52,10 @@ export function Orders() {
   const [error, setError] = useState(null)
   const [checkoutingOrderId, setCheckoutingOrderId] = useState(null)
   const [paymentResult, setPaymentResult] = useState(null)
+  const [ordersPage, setOrdersPage] = useState(1)
+  const [paymentFailedOrderId, setPaymentFailedOrderId] = useState(null)
+  
+  const ORDERS_PER_PAGE = 3
 
   useEffect(() => {
     fetchOrders()
@@ -75,8 +79,11 @@ export function Orders() {
       if (response.ok) {
         const data = await response.json()
         setOrders(Array.isArray(data) ? data : data.orders || [])
+        // Reset pagination when orders are refreshed
+        setOrdersPage(1)
       } else if (response.status === 404) {
         setOrders([])
+        setOrdersPage(1)
       } else {
         throw new Error('Failed to fetch orders')
       }
@@ -191,16 +198,35 @@ export function Orders() {
         name: 'Cross-App Comparison Agent',
         description: `Order for Product ID: ${order.product_id}`,
         handler: async (response) => {
+          // Clear the failure flag on successful payment
+          setPaymentFailedOrderId(null)
           await verifyPayment(order, response)
+        },
+        "prefill": {
+          "contact": "",
+          "email": ""
         },
         modal: {
           ondismiss: () => {
             setCheckoutingOrderId(null)
-            setPaymentResult({
-              type: 'cancelled',
-              message: 'Payment cancelled'
-            })
+            
+            // If payment had already failed, do NOT reset to cancelled/pending
+            if (paymentFailedOrderId === order.id) {
+              console.log('Checkout dismissed after payment failure, keeping PAYMENT_FAILED status')
+              // Do not show payment result - order already marked as failed
+              // User can view orders to see the PAYMENT_FAILED status
+            } else {
+              // No payment failure occurred, just a normal close
+              setPaymentResult({
+                type: 'cancelled',
+                message: 'Payment cancelled'
+              })
+            }
           }
+        },
+        "error": async (error) => {
+          console.error('Razorpay error:', error)
+          await handlePaymentFailure(error, order)
         },
         theme: {
           color: '#047857'
@@ -228,6 +254,57 @@ export function Orders() {
     }
   }
 
+  const handlePaymentFailure = async (error, order) => {
+    console.error('Razorpay payment failed:', error)
+    
+    // Mark that a payment failure occurred for this order
+    setPaymentFailedOrderId(order.id)
+    
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Call the mark-failed endpoint
+      const failResponse = await fetch(
+        `http://localhost:8000/api/orders/${order.id}/mark-failed`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
+
+      if (failResponse.ok) {
+        const failData = await failResponse.json()
+        console.log('Payment marked as failed:', failData)
+        
+        setPaymentResult({
+          type: 'failure',
+          message: 'Payment failed. Please try again.',
+          orderId: order.id
+        })
+        
+        // Refresh orders to show updated status
+        await fetchOrders()
+      } else {
+        console.error('Failed to mark payment as failed')
+        setPaymentResult({
+          type: 'failure',
+          message: 'Payment failed. Please try again.'
+        })
+      }
+    } catch (err) {
+      console.error('Error marking payment as failed:', err)
+      setPaymentResult({
+        type: 'failure',
+        message: 'Payment failed. Please try again.'
+      })
+    } finally {
+      setCheckoutingOrderId(null)
+    }
+  }
+
   const verifyPayment = async (order, response) => {
     try {
       const token = localStorage.getItem('token')
@@ -249,6 +326,9 @@ export function Orders() {
       )
 
       if (verifyResponse.ok) {
+        // Clear the failure flag on successful payment
+        setPaymentFailedOrderId(null)
+        
         setPaymentResult({
           type: 'success',
           message: 'Payment successful',
@@ -277,6 +357,40 @@ export function Orders() {
 
   const handleTryAgain = () => {
     setPaymentResult(null)
+    // Clear the failure flag when user clicks Try Again
+    setPaymentFailedOrderId(null)
+  }
+
+  // Pagination helpers
+  const getPaginatedOrders = () => {
+    if (!orders || orders.length === 0) {
+      return { orders: [], totalPages: 0, startIndex: 0, endIndex: 0 }
+    }
+    
+    const totalPages = Math.ceil(orders.length / ORDERS_PER_PAGE)
+    const startIndex = (ordersPage - 1) * ORDERS_PER_PAGE
+    const endIndex = startIndex + ORDERS_PER_PAGE
+    
+    return {
+      orders: orders.slice(startIndex, endIndex),
+      totalPages,
+      startIndex,
+      endIndex,
+      total: orders.length
+    }
+  }
+
+  const handlePreviousPage = () => {
+    setOrdersPage(prev => Math.max(1, prev - 1))
+  }
+
+  const handleNextPage = () => {
+    const { totalPages } = getPaginatedOrders()
+    setOrdersPage(prev => Math.min(totalPages, prev + 1))
+  }
+
+  const handlePageClick = (pageNum) => {
+    setOrdersPage(pageNum)
   }
 
   if (paymentResult) {
@@ -377,7 +491,7 @@ export function Orders() {
           </div>
         ) : (
           <div className="orders-list">
-            {orders.map((order) => (
+            {getPaginatedOrders().orders.map((order) => (
               <div key={order.id} className="order-card">
                 <div className="order-header">
                   <div className="order-title">
@@ -435,6 +549,55 @@ export function Orders() {
                 )}
               </div>
             ))}
+            
+            {/* Pagination Controls */}
+            {(() => {
+              const { totalPages, total, startIndex, endIndex } = getPaginatedOrders()
+              if (totalPages <= 1) return null
+              
+              const pageNumbers = []
+              for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i)
+              }
+              
+              return (
+                <div className="pagination-section">
+                  <p className="pagination-info">
+                    Showing {startIndex + 1}–{Math.min(endIndex, total)} of {total} orders
+                  </p>
+                  
+                  <div className="pagination-controls">
+                    <button
+                      className="btn-pagination-prev"
+                      onClick={handlePreviousPage}
+                      disabled={ordersPage === 1}
+                    >
+                      ← Previous
+                    </button>
+                    
+                    <div className="pagination-pages">
+                      {pageNumbers.map(pageNum => (
+                        <button
+                          key={pageNum}
+                          className={`pagination-page ${ordersPage === pageNum ? 'active' : ''}`}
+                          onClick={() => handlePageClick(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <button
+                      className="btn-pagination-next"
+                      onClick={handleNextPage}
+                      disabled={ordersPage === totalPages}
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         )}
       </div>
