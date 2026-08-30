@@ -13,6 +13,11 @@ class UserLogin(BaseModel):
     password: str = Field(min_length=1, max_length=256)
 
 
+class AdminLogin(BaseModel):
+    username_or_email: str = Field(description="Admin username or email address")
+    password: str = Field(min_length=1, max_length=256)
+
+
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -23,7 +28,24 @@ class UserRead(BaseModel):
     is_active: bool
 
 
+class AdminRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    email: str
+    name: str
+    is_admin: bool
+    is_active: bool
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserRead
+
+
+class AdminToken(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    admin: AdminRead

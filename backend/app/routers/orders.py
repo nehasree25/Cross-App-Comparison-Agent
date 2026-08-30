@@ -15,6 +15,7 @@ from app.database import get_db
 from app.models import Order, Product, User
 from app.routers.auth import get_current_user
 from app.schemas.order import OrderCreate, OrderResponse, PaymentVerification, OrderRead
+from app.services.audit import log_audit_event
 
 router = APIRouter(prefix="/api", tags=["orders"])
 
@@ -137,6 +138,21 @@ def create_order(
         db.add(local_order)
         db.flush()  # Flush to get the ID without full refresh
         db.commit()
+        db.refresh(local_order)
+        
+        # Log order creation
+        try:
+            log_audit_event(
+                db=db,
+                user_id=current_user.id,
+                action="ORDER_CREATED",
+                description=f"Order created for product {order_data.product_id}",
+                resource_type="ORDER",
+                resource_id=local_order.id,
+            )
+        except Exception as e:
+            print(f"Failed to log audit event: {e}")
+            
     except IntegrityError as error:
         db.rollback()
         # Check if it's a foreign key constraint (product doesn't exist)
@@ -221,6 +237,20 @@ def mark_checkout_started(
         order.checkout_at = datetime.utcnow()
         db.commit()
         db.refresh(order)
+        
+        # Log checkout started event
+        try:
+            log_audit_event(
+                db=db,
+                user_id=current_user.id,
+                action="CHECKOUT_STARTED",
+                description=f"Checkout started for order {order.id}",
+                resource_type="ORDER",
+                resource_id=order.id,
+            )
+        except Exception as e:
+            print(f"Failed to log audit event: {e}")
+        
         return {
             "status": "success",
             "checkout_at": format_datetime(order.checkout_at)
@@ -279,6 +309,19 @@ def verify_payment(
         db.commit()
         db.refresh(order)
         
+        # Log payment success event
+        try:
+            log_audit_event(
+                db=db,
+                user_id=current_user.id,
+                action="PAYMENT_SUCCESS",
+                description=f"Payment verified successfully for order {order.id}",
+                resource_type="ORDER",
+                resource_id=order.id,
+            )
+        except Exception as e:
+            print(f"Failed to log audit event: {e}")
+        
         return {
             "status": "success",
             "payment_status": order.payment_status,
@@ -325,6 +368,19 @@ def mark_payment_failed(
         # payment_at remains NULL
         db.commit()
         db.refresh(order)
+        
+        # Log payment failed event
+        try:
+            log_audit_event(
+                db=db,
+                user_id=current_user.id,
+                action="PAYMENT_FAILED",
+                description=f"Payment marked as failed for order {order.id}",
+                resource_type="ORDER",
+                resource_id=order.id,
+            )
+        except Exception as e:
+            print(f"Failed to log audit event: {e}")
         
         return {
             "status": "success",

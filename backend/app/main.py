@@ -11,6 +11,7 @@ from app.routers.agent import router as agent_router
 from app.routers.auth import router as auth_router
 from app.routers.orders import router as orders_router
 from app.routers.dashboard import router as dashboard_router
+from app.routers.admin import router as admin_router
 
 app = FastAPI(title="Cross-App Comparison Agent")
 
@@ -197,3 +198,4 @@ app.include_router(auth_router)
 app.include_router(agent_router)
 app.include_router(orders_router)
 app.include_router(dashboard_router)
+app.include_router(admin_router)

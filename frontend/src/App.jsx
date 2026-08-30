@@ -5,6 +5,7 @@ import { initApiClient } from './utils/apiClient'
 import { Navbar } from './components/Navbar'
 import { AuthenticatedNavbar } from './components/AuthenticatedNavbar'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { AdminProtectedRoute } from './components/AdminProtectedRoute'
 import { Hero } from './components/Hero'
 import { About } from './components/About'
 import { HowItWorks } from './components/HowItWorks'
@@ -15,9 +16,11 @@ import { Login } from './pages/Login'
 import { Signup } from './pages/Signup'
 import { Dashboard } from './pages/Dashboard'
 import { Compare } from './pages/Compare'
-
 import { Orders } from './pages/Orders'
 import { Profile } from './pages/Profile'
+import { AdminLogin } from './pages/AdminLogin'
+import { AdminDashboard } from './pages/AdminDashboard'
+import { AdminAuditLogs } from './pages/AdminAuditLogs'
 
 function LandingPage() {
   return (
@@ -36,6 +39,11 @@ function LandingPage() {
 function NavbarRouter() {
   const location = useLocation()
   const { token } = useAuth()
+  
+  // Admin pages don't show regular navbar
+  if (location.pathname.startsWith('/admin')) {
+    return null
+  }
   
   // Landing page always uses the landing navbar
   if (location.pathname === '/') {
@@ -72,6 +80,25 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/audit-logs"
+          element={
+            <AdminProtectedRoute>
+              <AdminAuditLogs />
+            </AdminProtectedRoute>
+          }
+        />
 
         {/* Protected Routes */}
         <Route
