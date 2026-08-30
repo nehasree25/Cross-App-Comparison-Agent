@@ -28,6 +28,7 @@ app.add_middleware(
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
     ensure_comparison_category()
+    ensure_orders_schema()
     seed_catalog()
 
 
@@ -75,6 +76,98 @@ def ensure_comparison_category() -> None:
                 "ALTER TABLE comparison_sessions ALTER COLUMN category SET NOT NULL"
             )
         )
+
+
+def ensure_orders_schema() -> None:
+    """Ensure orders table has all required columns for payment workflow."""
+    with engine.begin() as connection:
+        # Check if razorpay_payment_id column exists
+        razorpay_payment_id_exists = connection.execute(
+            text(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'orders'
+                  AND column_name = 'razorpay_payment_id'
+                """
+            )
+        ).all()
+        
+        if not razorpay_payment_id_exists:
+            connection.execute(
+                text(
+                    """
+                    ALTER TABLE orders
+                    ADD COLUMN razorpay_payment_id VARCHAR(100) NULL
+                    """
+                )
+            )
+        
+        # Check if checkout_at column exists
+        checkout_at_exists = connection.execute(
+            text(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'orders'
+                  AND column_name = 'checkout_at'
+                """
+            )
+        ).all()
+        
+        if not checkout_at_exists:
+            connection.execute(
+                text(
+                    """
+                    ALTER TABLE orders
+                    ADD COLUMN checkout_at TIMESTAMP WITH TIME ZONE NULL
+                    """
+                )
+            )
+        
+        # Check if payment_at column exists
+        payment_at_exists = connection.execute(
+            text(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'orders'
+                  AND column_name = 'payment_at'
+                """
+            )
+        ).all()
+        
+        if not payment_at_exists:
+            connection.execute(
+                text(
+                    """
+                    ALTER TABLE orders
+                    ADD COLUMN payment_at TIMESTAMP WITH TIME ZONE NULL
+                    """
+                )
+            )
+        
+        # Check if payment_status column exists
+        payment_status_exists = connection.execute(
+            text(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'orders'
+                  AND column_name = 'payment_status'
+                """
+            )
+        ).all()
+        
+        if not payment_status_exists:
+            connection.execute(
+                text(
+                    """
+                    ALTER TABLE orders
+                    ADD COLUMN payment_status VARCHAR(50) NOT NULL DEFAULT 'PAYMENT_PENDING'
+                    """
+                )
+            )
 
 
 def seed_catalog() -> None:

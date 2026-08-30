@@ -35,6 +35,12 @@
   color: var(--primary-emerald);
 }
 
+.navbar-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
 .navbar-menu {
   display: flex;
   align-items: center;

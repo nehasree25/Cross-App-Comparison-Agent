@@ -16,6 +16,7 @@ from app.routers.auth import get_current_user
 from app.schemas.agent import AgentChatRequest, AgentChatResponse, RecommendedProduct
 from app.schemas.comparison import ComparisonSessionRead
 from app.schemas.product import ProductResult, ProductSearchParams
+from app.services.recommendation import select_best_product
 
 router = APIRouter(prefix="/api", tags=["agent"])
 
@@ -33,6 +34,7 @@ def chat(
                 "are not currently supported."
             ),
             recommended_product=None,
+            recommendation_reason=None,
             products=[],
         )
 
@@ -69,9 +71,15 @@ def chat(
             detail="The comparison history service is temporarily unavailable.",
         ) from error
 
+    # Select best product from returned results
+    recommended_product, recommendation_reason = select_best_product(
+        products, request.message
+    )
+
     return AgentChatResponse(
         message=result.get("output", "I could not generate a recommendation."),
-        recommended_product=_recommended_product_from_agent_result(result),
+        recommended_product=recommended_product,
+        recommendation_reason=recommendation_reason,
         products=products,
     )
 

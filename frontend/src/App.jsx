@@ -14,7 +14,7 @@ import { Login } from './pages/Login'
 import { Signup } from './pages/Signup'
 import { Dashboard } from './pages/Dashboard'
 import { Compare } from './pages/Compare'
-import { Recommendations } from './pages/Recommendations'
+
 import { Orders } from './pages/Orders'
 import { Profile } from './pages/Profile'
 
@@ -64,14 +64,6 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Compare />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/recommendations"
-          element={
-            <ProtectedRoute>
-              <Recommendations />
             </ProtectedRoute>
           }
         />

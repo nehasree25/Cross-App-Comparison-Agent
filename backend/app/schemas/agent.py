@@ -22,4 +22,5 @@ class AgentChatRequest(BaseModel):
 class AgentChatResponse(BaseModel):
     message: str
     recommended_product: RecommendedProduct | None = None
+    recommendation_reason: str | None = None
     products: list[ProductResult] = Field(default_factory=list)

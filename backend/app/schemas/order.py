@@ -16,16 +16,29 @@ class OrderResponse(BaseModel):
     key_id: str = Field(..., description="Razorpay public key for checkout")
 
 
+class PaymentVerification(BaseModel):
+    """Request schema for verifying Razorpay payment"""
+    razorpay_order_id: str = Field(..., description="Razorpay order ID")
+    razorpay_payment_id: str = Field(..., description="Razorpay payment ID")
+    razorpay_signature: str = Field(..., description="Razorpay signature for verification")
+
+
 class OrderRead(BaseModel):
     """Schema for reading stored order from database"""
     id: int
     user_id: int
     product_id: str
     razorpay_order_id: str
+    razorpay_payment_id: str | None
     amount: Decimal
     amount_paise: int
     currency: str
     status: str
+    payment_status: str
+    created_at: str
+    checkout_at: str | None
+    payment_at: str | None
 
     class Config:
         from_attributes = True
+

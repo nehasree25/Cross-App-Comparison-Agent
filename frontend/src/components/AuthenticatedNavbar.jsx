@@ -12,7 +12,6 @@ export function AuthenticatedNavbar() {
   const navItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Compare', path: '/compare' },
-    { label: 'Recommendations', path: '/recommendations' },
     { label: 'Orders', path: '/orders' },
     { label: 'Profile', path: '/profile' }
   ]
@@ -33,19 +32,8 @@ export function AuthenticatedNavbar() {
         <div className="navbar-content">
           {/* Brand */}
           <Link to="/dashboard" className="navbar-brand">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-            </svg>
-            <span>Cross-App Agent</span>
+            <img src="/image.png" alt="CrossApp Agent" className="navbar-logo" />
+            <span>CrossApp Agent</span>
           </Link>
 
           {/* Desktop Menu */}

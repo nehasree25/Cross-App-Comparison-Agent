@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Zap } from 'lucide-react'
-import { handleApiError, getGeneralError, getFieldError } from '../utils/errorHandler'
+import { handleApiError, getGeneralError } from '../utils/errorHandler'
 import './Compare.css'
 
 const EXAMPLE_REQUIREMENTS = [
@@ -10,7 +11,7 @@ const EXAMPLE_REQUIREMENTS = [
   'Headphones under ₹10,000'
 ]
 
-function BestMatchCard({ product }) {
+function BestMatchCard({ product, onOrder, isOrdering, orderError }) {
   return (
     <div className="best-match-card">
       <div className="best-match-badge">
@@ -40,11 +41,31 @@ function BestMatchCard({ product }) {
         )}
       </div>
 
+      {product.delivery_days !== undefined && (
+        <p className="best-match-delivery">
+          🚚 {product.delivery_days} days delivery
+        </p>
+      )}
+
       {product.availability !== undefined && (
         <p className="best-match-availability">
           {product.availability ? '✓ In Stock' : '✗ Out of Stock'}
         </p>
       )}
+
+      {orderError && (
+        <div className="best-match-error" role="alert">
+          <span>{orderError}</span>
+        </div>
+      )}
+
+      <button
+        className="btn-order-best-match"
+        onClick={() => onOrder(product)}
+        disabled={isOrdering}
+      >
+        {isOrdering ? 'Placing Order...' : 'Order Now'}
+      </button>
     </div>
   )
 }
@@ -102,16 +123,109 @@ function ComparisonProductCard({ product }) {
 }
 
 export function Compare() {
+  const navigate = useNavigate()
   const [requirement, setRequirement] = useState('')
   const [comparisonResults, setComparisonResults] = useState(null)
   const [agentMessage, setAgentMessage] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isOrdering, setIsOrdering] = useState(false)
   const [apiError, setApiError] = useState(null)
+  const [orderError, setOrderError] = useState(null)
 
   const handleExampleClick = (example) => {
     setRequirement(example)
     setApiError(null)
+  }
+
+  const handleOrder = async (product) => {
+    // Validate product_id
+    if (!product || !product.product_id) {
+      setOrderError('Unable to place the order because the product information is incomplete.')
+      return
+    }
+
+    console.log('Order Debug - Recommended product:', product)
+    console.log('Order Debug - Product ID being sent:', product.product_id)
+
+    setIsOrdering(true)
+    setOrderError(null)
+    try {
+      const token = localStorage.getItem('token')
+      
+      if (!token) {
+        throw new Error('Authentication token not found')
+      }
+
+      const requestBody = {
+        product_id: product.product_id
+      }
+      
+      console.log('Order Debug - Request body:', requestBody)
+      
+      const response = await fetch('http://localhost:8000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestBody)
+      })
+
+      console.log('Order Debug - Response status:', response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.log('Order Debug - Error response:', errorData)
+        
+        // Create enhanced error with status code
+        const error = new Error(errorData.detail || 'Failed to create order')
+        error.response = {
+          status: response.status,
+          data: errorData
+        }
+        throw error
+      }
+
+      const responseData = await response.json()
+      console.log('Order Debug - Success response:', responseData)
+      
+      // Order created successfully, navigate to orders page
+      navigate('/orders')
+    } catch (error) {
+      console.error('Order Debug - Full error object:', error)
+      
+      // Handle specific error scenarios
+      let errorMessage
+      
+      if (error.response?.status === 404) {
+        errorMessage = 'Product not found. Please try another product.'
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Your session has expired. Please log in again.'
+      } else if (error.response?.status === 400) {
+        errorMessage = error.response.data?.detail || 'Invalid product information. Please try another product.'
+      } else if (error.response?.status === 422) {
+        // Unprocessable entity - validation error
+        const detail = error.response.data?.detail
+        if (Array.isArray(detail) && detail.length > 0) {
+          errorMessage = detail[0].msg || 'There was a problem with the order information.'
+        } else if (typeof detail === 'string') {
+          errorMessage = detail
+        } else {
+          errorMessage = 'Please check the product information and try again.'
+        }
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Unable to create the order right now. Please try again.'
+      } else if (!error.response) {
+        errorMessage = 'Unable to connect to the server. Please check your connection and try again.'
+      } else {
+        errorMessage = error.message || 'Failed to create order. Please try again.'
+      }
+      
+      setOrderError(errorMessage)
+    } finally {
+      setIsOrdering(false)
+    }
   }
 
   const handleCompare = async (e) => {
@@ -155,6 +269,10 @@ export function Compare() {
       }
 
       const data = await response.json()
+      console.log('API Response:', data)
+      console.log('Recommended Product:', data.recommended_product)
+      console.log('Products:', data.products)
+      
       setAgentMessage(data.message || '')
       setComparisonResults({
         recommended_product: data.recommended_product,
@@ -246,11 +364,16 @@ export function Compare() {
           ) : comparisonResults && (comparisonResults.products.length > 0 || comparisonResults.recommended_product) ? (
             <>
               {/* Best Match Product */}
-              {comparisonResults.recommended_product && (
+              {comparisonResults.recommended_product ? (
                 <div className="best-match-container">
-                  <BestMatchCard product={comparisonResults.recommended_product} />
+                  <BestMatchCard
+                    product={comparisonResults.recommended_product}
+                    onOrder={handleOrder}
+                    isOrdering={isOrdering}
+                    orderError={orderError}
+                  />
                 </div>
-              )}
+              ) : null}
 
               {/* Comparison Results */}
               {comparisonResults.products.length > 0 && (
@@ -260,7 +383,7 @@ export function Compare() {
                     <span className="results-count">{comparisonResults.products.length} products</span>
                   </div>
                   <div className="results-grid">
-                    {comparisonResults.products.slice(0, 8).map((product, idx) => (
+                    {comparisonResults.products.map((product, idx) => (
                       <ComparisonProductCard
                         key={product.product_id || idx}
                         product={product}
