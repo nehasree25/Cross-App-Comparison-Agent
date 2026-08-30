@@ -4,38 +4,47 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [token, setToken] = useState(localStorage.getItem('token') || null)
+  const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Initialize auth state from localStorage
+  // Initialize auth state from localStorage on component mount
   useEffect(() => {
-    if (token) {
-      // Verify token is valid by checking user info
-      fetchCurrentUser()
-    } else {
-      setLoading(false)
-    }
+    initializeAuth()
   }, [])
 
-  const fetchCurrentUser = async () => {
+  const initializeAuth = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // Get token from localStorage
+      const storedToken = localStorage.getItem('token')
+      
+      if (storedToken) {
+        // Verify token is valid by checking user info
+        const response = await fetch('http://localhost:8000/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${storedToken}`
+          }
+        })
+        
+        if (response.ok) {
+          const userData = await response.json()
+          setToken(storedToken)
+          setUser(userData)
+        } else {
+          // Token invalid/expired, clear it
+          localStorage.removeItem('token')
+          setToken(null)
+          setUser(null)
         }
-      })
-      if (response.ok) {
-        const userData = await response.json()
-        setUser(userData)
       } else {
-        // Token invalid, clear it
+        // No stored token
         setToken(null)
-        localStorage.removeItem('token')
+        setUser(null)
       }
     } catch (error) {
-      console.error('Error fetching user:', error)
-      setToken(null)
+      console.error('Error initializing auth:', error)
       localStorage.removeItem('token')
+      setToken(null)
+      setUser(null)
     } finally {
       setLoading(false)
     }
@@ -65,9 +74,15 @@ export function AuthProvider({ children }) {
     }
 
     const data = await response.json()
-    setToken(data.access_token)
+    const accessToken = data.access_token
+    
+    // Store token in localStorage
+    localStorage.setItem('token', accessToken)
+    
+    // Update state
+    setToken(accessToken)
     setUser(data.user)
-    localStorage.setItem('token', data.access_token)
+    
     return data
   }
 
@@ -107,13 +122,23 @@ export function AuthProvider({ children }) {
   }
 
   const logout = () => {
+    // Clear state
+    setUser(null)
+    setToken(null)
+    
+    // Clear localStorage
+    localStorage.removeItem('token')
+  }
+
+  const handleTokenInvalid = () => {
+    // Called when backend returns 401 (token expired/invalid)
     setUser(null)
     setToken(null)
     localStorage.removeItem('token')
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, signup, logout, handleTokenInvalid }}>
       {children}
     </AuthContext.Provider>
   )

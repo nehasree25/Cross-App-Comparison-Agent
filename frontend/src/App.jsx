@@ -1,6 +1,7 @@
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { initApiClient } from './utils/apiClient'
 import { Navbar } from './components/Navbar'
 import { AuthenticatedNavbar } from './components/AuthenticatedNavbar'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -34,7 +35,10 @@ function LandingPage() {
 
 // Conditional navbar component that shows authenticated navbar for protected routes
 function AppContent() {
-  const { token, loading } = useAuth()
+  const { token, loading, handleTokenInvalid } = useAuth()
+
+  // Initialize API client with auth context
+  initApiClient({ handleTokenInvalid })
 
   // Show nothing while auth is loading
   if (loading) {
