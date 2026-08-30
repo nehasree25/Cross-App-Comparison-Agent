@@ -26,7 +26,7 @@ export function AdminAuditLogs() {
   const [selectedAction, setSelectedAction] = useState('all')
   const [total, setTotal] = useState(0)
 
-  const ITEMS_PER_PAGE = 20
+  const ITEMS_PER_PAGE = 10
 
   useEffect(() => {
     fetchLogs()

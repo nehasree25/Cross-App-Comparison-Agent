@@ -233,6 +233,27 @@ def admin_login(
     )
 
 
+@router.post("/logout")
+def logout(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> dict:
+    """User logout endpoint - logs the logout event"""
+    # Log user logout event
+    try:
+        log_audit_event(
+            db=db,
+            user_id=current_user.id,
+            action="USER_LOGOUT",
+            description=f"User {current_user.username} logged out",
+        )
+    except Exception as e:
+        # Log but don't fail the logout
+        print(f"Failed to log audit event: {e}")
+    
+    return {"message": "Logged out successfully"}
+
+
 @router.post("/admin/logout")
 def admin_logout(
     current_admin: User = Depends(get_current_user),

@@ -121,13 +121,27 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  const logout = () => {
-    // Clear state
-    setUser(null)
-    setToken(null)
-    
-    // Clear localStorage
-    localStorage.removeItem('token')
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint to log the event
+      if (token) {
+        await fetch('http://localhost:8000/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }).catch(error => {
+          // Log but don't fail logout if backend call fails
+          console.error('Logout API call failed:', error)
+        })
+      }
+    } finally {
+      // Clear state and localStorage regardless of backend success
+      setUser(null)
+      setToken(null)
+      localStorage.removeItem('token')
+    }
   }
 
   const handleTokenInvalid = () => {

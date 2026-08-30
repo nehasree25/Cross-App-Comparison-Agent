@@ -8,6 +8,7 @@ import './Auth.css'
 export function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const [loginType, setLoginType] = useState('user') // 'user' or 'admin'
   const [formData, setFormData] = useState({
     usernameOrEmail: '',
     password: ''
@@ -51,6 +52,14 @@ export function Login() {
     }
   }
 
+  const handleTabChange = (type) => {
+    setLoginType(type)
+    setFormData({ usernameOrEmail: '', password: '' })
+    setErrors({})
+    setApiError(null)
+    setShowPassword(false)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -62,10 +71,53 @@ export function Login() {
     setApiError(null)
 
     try {
-      await login(formData.usernameOrEmail, formData.password)
-      // Navigation will happen after state updates
-      // The navigate happens naturally through React's state update cycle
-      navigate('/dashboard', { replace: true })
+      if (loginType === 'admin') {
+        // Admin login
+        const response = await fetch('http://localhost:8000/api/auth/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username_or_email: formData.usernameOrEmail,
+            password: formData.password,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          
+          if (response.status === 403) {
+            setApiError({ message: 'You do not have administrator access' })
+          } else if (response.status === 401) {
+            setApiError({ message: 'Incorrect username/email or password' })
+          } else {
+            setApiError({ message: errorData.detail || 'Login failed. Please try again.' })
+          }
+          
+          // Clear password field on authentication failure
+          setFormData(prev => ({
+            ...prev,
+            password: ''
+          }))
+          return
+        }
+
+        const data = await response.json()
+        
+        // Store admin token and info
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        localStorage.setItem('adminToken', data.access_token)
+        localStorage.setItem('adminUser', JSON.stringify(data.admin))
+        
+        // Redirect to admin dashboard
+        navigate('/admin', { replace: true })
+      } else {
+        // User login
+        await login(formData.usernameOrEmail, formData.password)
+        navigate('/dashboard', { replace: true })
+      }
     } catch (error) {
       // Convert API error to user-friendly message
       const errorInfo = handleApiError(error)
@@ -91,10 +143,32 @@ export function Login() {
             <span>CrossApp Agent</span>
           </Link>
 
+          {/* Login Type Tabs */}
+          <div className="login-type-tabs">
+            <button
+              type="button"
+              className={`tab-button ${loginType === 'user' ? 'active' : ''}`}
+              onClick={() => handleTabChange('user')}
+            >
+              User Login
+            </button>
+            <button
+              type="button"
+              className={`tab-button ${loginType === 'admin' ? 'active' : ''}`}
+              onClick={() => handleTabChange('admin')}
+            >
+              Admin Login
+            </button>
+          </div>
+
           {/* Heading */}
           <div className="auth-heading">
-            <h1>Welcome Back</h1>
-            <p>Sign in to continue comparing products across apps and find the best match.</p>
+            <h1>{loginType === 'admin' ? 'Admin Access' : 'Welcome Back'}</h1>
+            <p>
+              {loginType === 'admin' 
+                ? 'Sign in to access the admin dashboard and view audit logs.'
+                : 'Sign in to continue comparing products across apps and find the best match.'}
+            </p>
           </div>
 
           {/* General API Error */}
@@ -179,10 +253,12 @@ export function Login() {
           </form>
 
           {/* Footer */}
-          <div className="auth-footer">
-            <span>Don't have an account?</span>
-            <Link to="/signup" className="auth-link">Sign up</Link>
-          </div>
+          {loginType === 'user' && (
+            <div className="auth-footer">
+              <span>Don't have an account?</span>
+              <Link to="/signup" className="auth-link">Sign up</Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

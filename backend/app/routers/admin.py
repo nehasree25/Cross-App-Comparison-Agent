@@ -61,7 +61,7 @@ def get_admin_stats(
     recent_logs = db.scalars(
         select(AuditLog)
         .order_by(AuditLog.created_at.desc())
-        .limit(10)
+        .limit(4)
     ).all()
     
     return {

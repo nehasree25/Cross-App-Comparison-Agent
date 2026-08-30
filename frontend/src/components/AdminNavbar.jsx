@@ -23,7 +23,7 @@ export function AdminNavbar() {
       // Clear admin session
       localStorage.removeItem('adminToken')
       localStorage.removeItem('adminUser')
-      navigate('/admin/login')
+      navigate('/')
     }
   }
 
@@ -31,7 +31,8 @@ export function AdminNavbar() {
     <nav className="admin-navbar">
       <div className="admin-navbar-container">
         <div className="admin-navbar-brand">
-          <h1>CrossApp Agent Admin</h1>
+          <img src="/image.png" alt="CrossApp Agent" className="admin-navbar-logo" />
+          <span>CrossApp Agent</span>
         </div>
 
         <div className="admin-navbar-links">
