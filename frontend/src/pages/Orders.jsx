@@ -219,7 +219,8 @@ export function Orders() {
               // No payment failure occurred, just a normal close
               setPaymentResult({
                 type: 'cancelled',
-                message: 'Payment cancelled'
+                message: 'Payment cancelled',
+                orderId: order.id
               })
             }
           }
@@ -235,6 +236,7 @@ export function Orders() {
 
       try {
         const rzp = new window.Razorpay(options)
+        console.log('Opening Razorpay for order:', order.id)
         rzp.open()
       } catch (err) {
         console.error('Razorpay initialization error:', err)
@@ -309,6 +311,8 @@ export function Orders() {
     try {
       const token = localStorage.getItem('token')
       
+      console.log('Verifying payment with backend for order:', order.id)
+      
       const verifyResponse = await fetch(
         `http://localhost:8000/api/orders/${order.id}/verify-payment`,
         {
@@ -325,9 +329,14 @@ export function Orders() {
         }
       )
 
+      console.log('Verify payment response status:', verifyResponse.status)
+
       if (verifyResponse.ok) {
         // Clear the failure flag on successful payment
         setPaymentFailedOrderId(null)
+        
+        const verifyData = await verifyResponse.json()
+        console.log('Payment verified successfully:', verifyData)
         
         setPaymentResult({
           type: 'success',
@@ -339,10 +348,21 @@ export function Orders() {
         // Refresh orders to show updated status
         await fetchOrders()
       } else {
+        // Payment verification failed (likely payment was marked as failed by Razorpay)
+        const errorData = await verifyResponse.json().catch(() => ({}))
+        console.error('Payment verification failed:', verifyResponse.status, errorData)
+        
+        // Mark as failed since verification returned error
+        setPaymentFailedOrderId(order.id)
+        
         setPaymentResult({
           type: 'failure',
-          message: 'Payment verification failed'
+          message: errorData.detail || 'Payment verification failed. Please try again.',
+          orderId: order.id
         })
+        
+        // Refresh orders to show updated status
+        await fetchOrders()
       }
     } catch (err) {
       console.error('Error verifying payment:', err)
@@ -359,6 +379,57 @@ export function Orders() {
     setPaymentResult(null)
     // Clear the failure flag when user clicks Try Again
     setPaymentFailedOrderId(null)
+  }
+
+  const handleMarkFailed = async (orderId) => {
+    if (!orderId) {
+      setPaymentResult({
+        type: 'failure',
+        message: 'Order ID not found'
+      })
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      
+      const response = await fetch(
+        `http://localhost:8000/api/orders/${orderId}/mark-failed`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Payment marked as failed:', data)
+        
+        setPaymentResult({
+          type: 'failure',
+          message: 'Payment marked as failed',
+          orderId: orderId
+        })
+        
+        // Refresh orders
+        await fetchOrders()
+      } else {
+        console.error('Failed to mark payment as failed')
+        setPaymentResult({
+          type: 'failure',
+          message: 'Unable to mark payment as failed'
+        })
+      }
+    } catch (err) {
+      console.error('Error marking payment as failed:', err)
+      setPaymentResult({
+        type: 'failure',
+        message: 'Error marking payment as failed'
+      })
+    }
   }
 
   // Pagination helpers
@@ -433,7 +504,7 @@ export function Orders() {
               <>
                 <h2>Payment Cancelled</h2>
                 <p className="result-message">You closed the payment window before completing the payment.</p>
-                <p className="result-submessage">You can try again whenever you're ready.</p>
+                <p className="result-submessage">If you selected "Failure" in test mode, click "Mark as Failed" below.</p>
               </>
             ) : (
               <>
@@ -444,6 +515,14 @@ export function Orders() {
             )}
 
             <div className="result-actions">
+              {paymentResult.type === 'cancelled' && (
+                <button 
+                  className="btn-try-again" 
+                  onClick={() => handleMarkFailed(paymentResult.orderId)}
+                >
+                  Mark as Failed
+                </button>
+              )}
               {paymentResult.type !== 'success' && (
                 <button className="btn-try-again" onClick={handleTryAgain}>
                   Try Again
@@ -538,13 +617,23 @@ export function Orders() {
 
                 {order.payment_status !== 'PAID' && (
                   <div className="order-actions">
-                    <button
-                      className="btn-checkout"
-                      onClick={() => handleCheckout(order)}
-                      disabled={checkoutingOrderId === order.id}
-                    >
-                      {checkoutingOrderId === order.id ? 'Opening Checkout...' : 'Checkout'}
-                    </button>
+                    {order.payment_status === 'PAYMENT_FAILED' ? (
+                      <button
+                        className="btn-checkout"
+                        onClick={() => handleCheckout(order)}
+                        disabled={checkoutingOrderId === order.id}
+                      >
+                        {checkoutingOrderId === order.id ? 'Opening Checkout...' : 'Try Checkout Again'}
+                      </button>
+                    ) : (
+                      <button
+                        className="btn-checkout"
+                        onClick={() => handleCheckout(order)}
+                        disabled={checkoutingOrderId === order.id}
+                      >
+                        {checkoutingOrderId === order.id ? 'Opening Checkout...' : 'Checkout'}
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

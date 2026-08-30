@@ -302,6 +302,59 @@ def verify_payment(
         )
     
     try:
+        # Fetch actual payment status from Razorpay
+        try:
+            razorpay_payment = razorpay_client.payment.fetch(payment_data.razorpay_payment_id)
+            payment_status = razorpay_payment.get('status')
+            print(f"DEBUG: Razorpay payment {payment_data.razorpay_payment_id} status: {payment_status}")
+            print(f"DEBUG: Full payment object: {razorpay_payment}")
+            
+            # Check for failed key as well
+            is_failed = razorpay_payment.get('failed', False)
+            print(f"DEBUG: Payment failed field: {is_failed}")
+        except Exception as razorpay_error:
+            print(f"Error fetching payment from Razorpay: {razorpay_error}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Unable to verify payment with Razorpay",
+            )
+        
+        # Check if payment failed
+        if payment_status == 'failed' or razorpay_payment.get('failed', False):
+            print(f"Payment {payment_data.razorpay_payment_id} has failed status in Razorpay")
+            order.razorpay_payment_id = payment_data.razorpay_payment_id
+            order.payment_status = "PAYMENT_FAILED"
+            order.payment_at = None
+            db.commit()
+            db.refresh(order)
+            
+            # Log payment failed event
+            try:
+                log_audit_event(
+                    db=db,
+                    user_id=current_user.id,
+                    action="PAYMENT_FAILED",
+                    description=f"Payment marked as failed for order {order.id}",
+                    resource_type="ORDER",
+                    resource_id=order.id,
+                )
+            except Exception as e:
+                print(f"Failed to log audit event: {e}")
+            
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Payment failed at Razorpay",
+            )
+        
+        # For authorized/captured payments
+        if payment_status not in ['authorized', 'captured']:
+            print(f"Payment status '{payment_status}' is not authorized or captured")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Payment status is {payment_status}, expected authorized or captured",
+            )
+        
+        # Payment successful
         order.razorpay_payment_id = payment_data.razorpay_payment_id
         order.payment_status = "PAID"
         order.payment_at = datetime.utcnow()
@@ -328,11 +381,14 @@ def verify_payment(
             "payment_at": format_datetime(order.payment_at),
             "message": "Payment verified successfully"
         }
+    except HTTPException:
+        raise
     except Exception as error:
         db.rollback()
+        print(f"Error verifying payment: {error}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update payment status",
+            detail="Failed to verify payment",
         ) from error
 
 
