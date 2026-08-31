@@ -1,4 +1,4 @@
-# 🚀 CrossApp Agent
+#  CrossApp Agent
 
 **Compare Across Apps. Choose the Best.**
 
@@ -324,7 +324,6 @@ Cross-App-Comparison-Agent/
 |---|---|---|---|
 | `DATABASE_URL` | str | Yes | PostgreSQL connection URL |
 | `GROQ_API_KEY` | str | Yes | Groq API key for LLM |
-| `SECRET_KEY` | str | Yes | JWT secret key (min 32 chars) |
 | `RAZORPAY_KEY_ID` | str | Yes | Razorpay test public key |
 | `RAZORPAY_KEY_SECRET` | str | Yes | Razorpay test secret key |
 
@@ -383,12 +382,9 @@ http://localhost:8000/api
 
 ---
 
-## Team & License
+## Team
 
 **Project**: CrossApp Agent  
 **Track**: AI Growth & Agentic Commerce  
 **Motto**: "Compare Across Apps. Choose the Best."  
-
 **Technologies**: FastAPI, React, PostgreSQL, Groq LLM, Razorpay, LangChain
-
-**License**: Proprietary — Submission for Razorpay AI Builder Hackathon 2026
