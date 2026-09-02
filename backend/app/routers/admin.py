@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, func, or_
+from sqlalchemy import case, select, func, or_
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.audit_log import AuditLog
 from app.models.order import Order
+from app.models.product import Product
 from app.routers.auth import get_current_user
 from app.schemas.auth import AdminRead, UserStatusUpdate
 from app.services.audit import log_audit_event
@@ -63,6 +64,27 @@ def get_admin_stats(
     total_revenue = db.scalar(
         select(func.sum(Order.amount)).where(Order.payment_status == "PAID")
     ) or 0
+
+    # Keep every catalog merchant in the response, including merchants with no orders.
+    merchant_rows = db.execute(
+        select(
+            Product.merchant,
+            func.count(Order.id),
+            func.coalesce(
+                func.sum(
+                    case(
+                        (Order.payment_status == "PAID", Order.amount),
+                        else_=0,
+                    )
+                ),
+                0,
+            ),
+        )
+        .select_from(Product)
+        .outerjoin(Order, Order.product_id == Product.product_id)
+        .group_by(Product.merchant)
+        .order_by(Product.merchant)
+    ).all()
     
     # Recent audit logs
     recent_logs = db.scalars(
@@ -78,6 +100,14 @@ def get_admin_stats(
         "failed_payments": failed_payments or 0,
         "pending_payments": pending_payments or 0,
         "total_revenue": float(total_revenue),
+        "merchant_performance": [
+            {
+                "merchant": merchant,
+                "revenue": float(revenue or 0),
+                "order_count": order_count or 0,
+            }
+            for merchant, order_count, revenue in merchant_rows
+        ],
         "recent_activity": [
             {
                 "id": log.id,

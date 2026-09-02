@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdminNavbar } from '../components/AdminNavbar'
 import { RevenueChart } from '../components/RevenueChart'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, ResponsiveContainer } from 'recharts'
 import './AdminDashboard.css'
 
 export function AdminDashboard() {
@@ -12,11 +13,6 @@ export function AdminDashboard() {
   const [isRevenueLoading, setIsRevenueLoading] = useState(true)
   const [error, setError] = useState(null)
   const [revenueError, setRevenueError] = useState(null)
-
-  useEffect(() => {
-    fetchStats()
-    fetchRevenueData()
-  }, [])
 
   const fetchStats = async () => {
     try {
@@ -94,6 +90,34 @@ export function AdminDashboard() {
     }
   }
 
+  useEffect(() => {
+    const loadDashboard = async () => {
+      await Promise.all([fetchStats(), fetchRevenueData()])
+    }
+
+    void loadDashboard()
+  }, [])
+
+  const formatCurrency = (amount) => {
+    const value = Number(amount)
+    return `₹${(Number.isFinite(value) ? value : 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+  }
+
+  const formatChartAxis = (amount) => {
+    const value = Number(amount)
+    if (!Number.isFinite(value) || value === 0) return '₹0'
+    if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)}Cr`
+    if (value >= 100000) return `₹${(value / 100000).toFixed(2)}L`
+    if (value >= 1000) return `₹${(value / 1000).toFixed(0)}K`
+    return `₹${value.toFixed(0)}`
+  }
+
+  const merchantPerformance = (stats?.merchant_performance || []).map((item) => ({
+    merchant: item.merchant || 'Unknown merchant',
+    revenue: Number.isFinite(Number(item.revenue)) ? Number(item.revenue) : 0,
+    order_count: Number.isFinite(Number(item.order_count)) ? Number(item.order_count) : 0,
+  }))
+
   return (
     <div className="admin-dashboard-page">
       <AdminNavbar />
@@ -120,15 +144,10 @@ export function AdminDashboard() {
           </div>
         ) : stats ? (
           <>
-            {/* Stats and Chart Wrapper */}
-            <div className="stats-and-chart-wrapper">
-              {/* Stats Column */}
-              <div className="stats-column">
-                {/* Overview Section */}
-                <div className="overview-section">
-                  <h2 className="section-heading">Overview</h2>
-                  
-                  <div className="stats-grid">
+            <div className="analytics-grid">
+              <div className="overview-section">
+                <h2 className="section-heading">Platform Overview</h2>
+                <div className="stats-grid">
                     <div className="stat-card">
                       <div className="stat-label">Total Users</div>
                       <div className="stat-value">{stats.total_users}</div>
@@ -163,24 +182,58 @@ export function AdminDashboard() {
                     <div className="stat-card">
                       <div className="stat-label">Total Revenue</div>
                       <div className="stat-value" style={{ color: '#047857' }}>
-                        ₹{stats.total_revenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                        {formatCurrency(stats.total_revenue)}
                       </div>
                     </div>
-                  </div>
                 </div>
+                </div>
+
+              <div className="merchant-performance-section">
+                  <h2 className="section-heading">Merchant Performance</h2>
+                  {merchantPerformance.length > 0 ? (
+                    <div className="merchant-stats-grid">
+                      {merchantPerformance.map((merchant) => (
+                        <div className="merchant-stat-card" key={merchant.merchant}>
+                          <div className="stat-label">{merchant.merchant} Revenue</div>
+                          <div className="stat-value">{formatCurrency(merchant.revenue)}</div>
+                          <div className="merchant-order-count">{merchant.order_count} Orders</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="merchant-empty">No merchant orders available.</p>
+                  )}
               </div>
 
-              {/* Chart Column */}
-              <div className="chart-column">
-                <div className="revenue-overview-section">
-                  <h2 className="section-heading">Revenue Overview</h2>
-                  <p className="revenue-subtitle">Last 7 Days</p>
-                  <RevenueChart 
-                    data={revenueData}
-                    isLoading={isRevenueLoading}
-                    error={revenueError}
-                  />
-                </div>
+              <div className="revenue-overview-section">
+                <h2 className="section-heading">Revenue Overview</h2>
+                <p className="revenue-subtitle">Last 7 Days</p>
+                <RevenueChart
+                  data={revenueData}
+                  isLoading={isRevenueLoading}
+                  error={revenueError}
+                />
+              </div>
+              <div className="merchant-chart-container">
+                <h2 className="section-heading">Revenue Comparison</h2>
+                {merchantPerformance.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart data={merchantPerformance} margin={{ top: 15, right: 20, left: 0, bottom: 15 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                      <XAxis dataKey="merchant" padding={{ left: 18, right: 8 }} stroke="#64748b" tick={{ fill: '#64748b', fontSize: 12 }} />
+                      <YAxis stroke="#64748b" tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={formatChartAxis} />
+                      <Tooltip
+                        labelFormatter={(merchant) => merchant}
+                        formatter={(value) => [formatCurrency(value), 'Revenue']}
+                      />
+                      <Line type="monotone" dataKey="revenue" stroke="#047857" strokeWidth={3} dot={{ r: 5, fill: '#047857' }} activeDot={{ r: 7 }}>
+                        <LabelList dataKey="revenue" position="top" formatter={formatCurrency} fill="#0f172a" fontSize={12} />
+                      </Line>
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="merchant-empty">No merchant revenue available.</p>
+                )}
               </div>
             </div>
 
